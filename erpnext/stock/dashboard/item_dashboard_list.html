@@ -22,9 +22,9 @@
 							</span>
 						</span>
 					</span>
-					<span class="inline-graph-half" title="{{ __("Actual Qty {0} / Waiting Qty {1}", [d.actual_qty, d.pending_qty]) }}">
+					<span class="inline-graph-half" title="{{ __("Actual Qty = {0} - (Ordered Qty = {1}) - (Approved Qty = {2})", [d.actual_qty, d.custom_workflow_ordered_quantity, d.pending_qty]) }}">
 						<span class="inline-graph-count">
-							{{ d.actual_qty }} {{ (d.pending_qty > 0) ? ("(" + d.pending_qty+ ")") : "" }}
+							{{ d.actual_qty }} {{ (d.pending_qty > 0 || d.custom_workflow_ordered_quantity > 0) ? (" - (" + d.custom_workflow_ordered_quantity + ") - (" + d.pending_qty + ")") : "" }}
 						</span>
 						<span class="inline-graph-bar">
 							<span class="inline-graph-bar-inner dark"

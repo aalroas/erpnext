@@ -160,8 +160,13 @@ erpnext.stock.ItemDashboard = class ItemDashboard {
 			d.pending_qty = 0;
 			d.total_reserved = d.reserved_qty + d.reserved_qty_for_production + d.reserved_qty_for_sub_contract;
 			if (d.actual_or_pending > d.actual_qty) {
-				d.pending_qty = d.actual_or_pending - d.actual_qty;
+				d.pending_qty = parseFloat(d.actual_or_pending - d.actual_qty).toPrecision(2);
 			}
+			if(!d.custom_workflow_ordered_quantity) {
+				d.custom_workflow_ordered_quantity = 0
+			}
+			let x = parseFloat(d.custom_workflow_ordered_quantity).toPrecision(2);
+			d.pending_qty -= x;
 
 			max_count = Math.max(d.actual_or_pending, d.actual_qty,
 				d.total_reserved, max_count);
