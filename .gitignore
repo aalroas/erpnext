@@ -17,3 +17,5 @@ __pycache__
 .vscode/
 node_modules/
 .backportrc.json
+erpnext/www/book-appointment/__init__.py
+erpnext/www/book-appointment/verify/__init__.py
