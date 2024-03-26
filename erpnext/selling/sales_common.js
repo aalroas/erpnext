@@ -45,13 +45,29 @@ erpnext.selling.SellingController = class SellingController extends erpnext.Tran
 
 		if(this.frm.fields_dict.selling_price_list) {
 			this.frm.set_query("selling_price_list", function() {
-				return { filters: { selling: 1 } };
+				return {
+					filters: {
+						'selling': 1,
+						"custom_party_type": ["in", ["Customer", ""]],
+						"custom_party": cur_frm.doc.customer,
+						"currency": cur_frm.doc.currency,
+						"custom_is_standard_price_list": 0
+				 }
+				 };
 			});
 		}
 
 		if(this.frm.fields_dict.tc_name) {
 			this.frm.set_query("tc_name", function() {
-				return { filters: { selling: 1 } };
+				return {
+					filters: {
+						'selling': 1,
+						"custom_party_type": ["in", ["Customer", ""]],
+						"custom_party": cur_frm.doc.customer,
+						"currency": cur_frm.doc.currency,
+						"custom_is_standard_price_list": 0
+				 }
+				};
 			});
 		}
 
@@ -96,6 +112,7 @@ erpnext.selling.SellingController = class SellingController extends erpnext.Tran
 
 	customer() {
 		var me = this;
+		cur_frm.set_value("selling_price_list", "");
 		erpnext.utils.get_party_details(this.frm, null, null, function() {
 			me.apply_price_list();
 		});
