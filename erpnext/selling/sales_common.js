@@ -47,11 +47,7 @@ erpnext.selling.SellingController = class SellingController extends erpnext.Tran
 			this.frm.set_query("selling_price_list", function() {
 				return {
 					filters: {
-						'selling': 1,
-						"custom_party_type": ["in", ["Customer", ""]],
-						"custom_party": cur_frm.doc.customer,
-						"currency": cur_frm.doc.currency,
-						"custom_is_standard_price_list": 0
+						'selling': 1
 				 }
 				 };
 			});

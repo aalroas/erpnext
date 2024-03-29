@@ -58,10 +58,6 @@ erpnext.buying.BuyingController = class BuyingController extends erpnext.Transac
 				return{
 					filters: {
 						'buying': 1,
-						"custom_party_type": ["in", ["Supplier", ""]],
-						"custom_party": cur_frm.doc.supplier,
-						"currency": cur_frm.doc.currency,
-						"custom_is_standard_price_list": 0
 				 }
 				}
 			});
@@ -72,10 +68,6 @@ erpnext.buying.BuyingController = class BuyingController extends erpnext.Transac
 				return{
 					filters: {
 					'buying': 1,
-					"custom_party_type": ["in", ["Supplier", ""]],
-					"custom_party": cur_frm.doc.supplier,
-					"currency": cur_frm.doc.currency,
-					"custom_is_standard_price_list": 0
 				}
 				}
 			});
