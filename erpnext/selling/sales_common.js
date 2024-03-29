@@ -59,15 +59,7 @@ erpnext.selling.SellingController = class SellingController extends erpnext.Tran
 
 		if(this.frm.fields_dict.tc_name) {
 			this.frm.set_query("tc_name", function() {
-				return {
-					filters: {
-						'selling': 1,
-						"custom_party_type": ["in", ["Customer", ""]],
-						"custom_party": cur_frm.doc.customer,
-						"currency": cur_frm.doc.currency,
-						"custom_is_standard_price_list": 0
-				 }
-				};
+				return { filters: {'selling': 1}};
 			});
 		}
 
