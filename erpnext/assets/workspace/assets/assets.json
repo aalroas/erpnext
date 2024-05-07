@@ -185,7 +185,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-05-24 14:47:20.243146",
+ "modified": "2024-05-07 14:08:01.232028",
  "modified_by": "Administrator",
  "module": "Assets",
  "name": "Assets",
@@ -195,8 +195,27 @@
  "public": 1,
  "quick_lists": [],
  "restrict_to_domain": "",
- "roles": [],
- "sequence_id": 4.0,
+ "roles": [
+  {
+   "role": "Accounting Editor"
+  },
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "Super Admin"
+  },
+  {
+   "role": "HR Manager"
+  },
+  {
+   "role": "HR User"
+  }
+ ],
+ "sequence_id": 3.0,
  "shortcuts": [
   {
    "label": "Asset",
