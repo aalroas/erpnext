@@ -558,7 +558,7 @@ def apply_additional_conditions(doctype, query, from_date, ignore_closing_entrie
 			from ekin_erp.utils import format_list
 			reflection_entries = get_reflection_entries_names(filters.company)
 			query = query.where(gl_entry.voucher_no.notin(reflection_entries))
-			print(query)
+
 		if filters.get("cost_center"):
 			filters.cost_center = get_cost_centers_with_children(filters.cost_center)
 			query = query.where(gl_entry.cost_center.isin(filters.cost_center))
