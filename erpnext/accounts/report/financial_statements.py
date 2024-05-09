@@ -554,7 +554,6 @@ def apply_additional_conditions(doctype, query, from_date, ignore_closing_entrie
 			query = query.where(gl_entry.project.isin(filters.project))
 
 		if  not filters.get("include_reflection_entries"):
-			from ekin_erp.utils import get_reflection_entries_names
 			reflection_entries = get_reflection_entries_names(filters.company)
 			query = query.where(gl_entry.voucher_no.notin(reflection_entries))
 
@@ -661,3 +660,10 @@ def get_filtered_list_for_consolidated_report(filters, period_list):
 			filtered_summary_list.append(period)
 
 	return filtered_summary_list
+
+
+def get_reflection_entries_names(company):
+	return frappe.db.get_all("Journal Entry", filters={"voucher_type": "Reflection Entry", "company": company}, pluck="name")
+
+def format_list(value):
+	return str(tuple(value)).replace(',)', ')')
