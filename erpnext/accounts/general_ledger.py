@@ -412,7 +412,7 @@ def process_debit_credit_difference(gl_map):
 	# )
 	from ekin_erp.utils import get_currency_precision
 	company_currency = erpnext.get_company_currency(gl_map[0].company)
-	precision = get_currency_precision(company_currency)
+	precision = get_currency_precision(company_currency) or 4
 
 	voucher_type = gl_map[0].voucher_type
 	voucher_no = gl_map[0].voucher_no

@@ -192,7 +192,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-05-24 14:47:23.179860",
+ "modified": "2024-05-07 14:08:01.737914",
  "modified_by": "Administrator",
  "module": "Projects",
  "name": "Projects",
@@ -202,8 +202,21 @@
  "public": 1,
  "quick_lists": [],
  "restrict_to_domain": "",
- "roles": [],
- "sequence_id": 11.0,
+ "roles": [
+  {
+   "role": "Projects Manager"
+  },
+  {
+   "role": "Projects User"
+  },
+  {
+   "role": "Super Admin"
+  },
+  {
+   "role": "Customer Website User"
+  }
+ ],
+ "sequence_id": 15.0,
  "shortcuts": [
   {
    "color": "Blue",
