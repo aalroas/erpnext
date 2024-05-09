@@ -555,7 +555,8 @@ def apply_additional_conditions(doctype, query, from_date, ignore_closing_entrie
 
 		if  not filters.get("include_reflection_entries"):
 			reflection_entries = get_reflection_entries_names(filters.company)
-			query = query.where(gl_entry.voucher_no.notin(reflection_entries))
+			if len(reflection_entries) > 0:
+				query = query.where(gl_entry.voucher_no.notin(reflection_entries))
 
 		if filters.get("cost_center"):
 			filters.cost_center = get_cost_centers_with_children(filters.cost_center)
