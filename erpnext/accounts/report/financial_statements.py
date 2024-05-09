@@ -555,7 +555,6 @@ def apply_additional_conditions(doctype, query, from_date, ignore_closing_entrie
 
 		if  not filters.get("include_reflection_entries"):
 			from ekin_erp.utils import get_reflection_entries_names
-			from ekin_erp.utils import format_list
 			reflection_entries = get_reflection_entries_names(filters.company)
 			query = query.where(gl_entry.voucher_no.notin(reflection_entries))
 
