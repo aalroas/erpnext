@@ -515,7 +515,10 @@ def get_accounting_entries(
 	)
 
 	if doctype == "GL Entry":
-		query = query.select(gl_entry.posting_date, gl_entry.is_opening, gl_entry.fiscal_year)
+		if filters.get('include_party_details'):
+			query = query.select(gl_entry.posting_date, gl_entry.is_opening, gl_entry.fiscal_year, gl_entry.party_type, gl_entry.party)
+		else:
+			query = query.select(gl_entry.posting_date, gl_entry.is_opening, gl_entry.fiscal_year)
 		query = query.where(gl_entry.is_cancelled == 0)
 		query = query.where(gl_entry.posting_date <= to_date)
 
