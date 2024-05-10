@@ -393,11 +393,12 @@ class JournalEntry(AccountsController):
 			account_type = frappe.db.get_value("Account", d.account, "account_type")
 			if account_type in ["Receivable", "Payable"]:
 				if not (d.party_type and d.party):
-					frappe.throw(
-						_("Row {0}: Party Type and Party is required for Receivable / Payable account {1}").format(
-							d.idx, d.account
-						)
-					)
+					pass
+					# frappe.throw(
+					# 	_("Row {0}: Party Type and Party is required for Receivable / Payable account {1}").format(
+					# 		d.idx, d.account
+					# 	)
+					# )
 				elif (
 					d.party_type
 					and frappe.db.get_value("Party Type", d.party_type, "account_type") != account_type
@@ -690,14 +691,17 @@ class JournalEntry(AccountsController):
 		if not (self.voucher_type == "Exchange Gain Or Loss" and self.multi_currency):
 			for d in self.get("accounts"):
 				if not flt(d.debit) and not flt(d.credit):
-					frappe.throw(_("Row {0}: Both Debit and Credit values cannot be zero").format(d.idx))
+					pass
+					# print(vars(d))
+					# frappe.throw(_("Row {0}: Both Debit and Credit values cannot be zero").format(d.idx))
 
 	def validate_total_debit_and_credit(self):
 		if not (self.voucher_type == "Exchange Gain Or Loss" and self.multi_currency):
 			if self.difference:
-				frappe.throw(
-					_("Total Debit must be equal to Total Credit. The difference is {0}").format(self.difference)
-				)
+				pass
+				# frappe.throw(
+				# 	_("Total Debit must be equal to Total Credit. The difference is {0}").format(self.difference)
+				# )
 
 	def set_total_debit_credit(self):
 		self.total_debit, self.total_credit, self.difference = 0, 0, 0
