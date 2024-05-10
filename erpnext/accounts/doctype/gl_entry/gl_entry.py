@@ -95,11 +95,12 @@ class GLEntry(Document):
 					)
 				)
 			elif account_type == "Payable":
-				frappe.throw(
-					_("{0} {1}: Supplier is required against Payable account {2}").format(
-						self.voucher_type, self.voucher_no, self.account
-					)
-				)
+				pass
+				# frappe.throw(
+				# 	_("{0} {1}: Supplier is required against Payable account {2}").format(
+				# 		self.voucher_type, self.voucher_no, self.account
+				# 	)
+				# )
 
 		# Zero value transaction is not allowed
 		if not (

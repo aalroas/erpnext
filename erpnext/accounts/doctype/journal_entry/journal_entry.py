@@ -138,7 +138,8 @@ class JournalEntry(AccountsController):
 			any(d.account_type == "Depreciation" for d in self.get("accounts"))
 			and self.voucher_type != "Depreciation Entry"
 		):
-			frappe.throw(_("Journal Entry type should be set as Depreciation Entry for asset depreciation"))
+			pass
+			# frappe.throw(_("Journal Entry type should be set as Depreciation Entry for asset depreciation"))
 
 	def validate_stock_accounts(self):
 		stock_accounts = get_stock_accounts(self.company, self.doctype, self.name)
