@@ -366,7 +366,7 @@ def get_count_on(account, fieldname, date):
 					)[0][0]
 
 					outstanding_amount = flt(gle.get(dr_or_cr)) - flt(gle.get(cr_or_dr)) - payment_amount
-					currency_precision = get_currency_precision() or 4
+					currency_precision = get_currency_precision() or 2
 					if abs(flt(outstanding_amount)) > 0.1 / 10**currency_precision:
 						count += 1
 
