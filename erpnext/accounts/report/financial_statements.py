@@ -515,7 +515,10 @@ def get_accounting_entries(
 	)
 
 	if doctype == "GL Entry":
-		query = query.select(gl_entry.posting_date, gl_entry.is_opening, gl_entry.fiscal_year)
+		if filters.get('include_party_details'):
+			query = query.select(gl_entry.posting_date, gl_entry.is_opening, gl_entry.fiscal_year, gl_entry.party_type, gl_entry.party)
+		else:
+			query = query.select(gl_entry.posting_date, gl_entry.is_opening, gl_entry.fiscal_year)
 		query = query.where(gl_entry.is_cancelled == 0)
 		query = query.where(gl_entry.posting_date <= to_date)
 
@@ -552,6 +555,11 @@ def apply_additional_conditions(doctype, query, from_date, ignore_closing_entrie
 				filters.project = frappe.parse_json(filters.get("project"))
 
 			query = query.where(gl_entry.project.isin(filters.project))
+
+		if  not filters.get("include_reflection_entries"):
+			reflection_entries = get_reflection_entries_names(filters.company)
+			if len(reflection_entries) > 0:
+				query = query.where(gl_entry.voucher_no.notin(reflection_entries))
 
 		if filters.get("cost_center"):
 			filters.cost_center = get_cost_centers_with_children(filters.cost_center)
@@ -656,3 +664,10 @@ def get_filtered_list_for_consolidated_report(filters, period_list):
 			filtered_summary_list.append(period)
 
 	return filtered_summary_list
+
+
+def get_reflection_entries_names(company):
+	return frappe.db.get_all("Journal Entry", filters={"voucher_type": "Reflection Entry", "company": company}, pluck="name")
+
+def format_list(value):
+	return str(tuple(value)).replace(',)', ')')
