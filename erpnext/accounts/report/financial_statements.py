@@ -667,7 +667,13 @@ def get_filtered_list_for_consolidated_report(filters, period_list):
 
 
 def get_reflection_entries_names(company):
-	return frappe.db.get_all("Journal Entry", filters={"voucher_type": "Reflection Entry", "company": company}, pluck="name")
+    acc = frappe.db.get_all("Journal Entry", filters={"voucher_type": "Reflection Entry", "company": company}, pluck="name")
+    ddd = []
+    for ac in acc:
+        if ac == 'ACC-JV-2024-12600-1':
+            ddd.append(ac)
+    print(ddd)
+    return ddd
 
 def format_list(value):
 	return str(tuple(value)).replace(',)', ')')
