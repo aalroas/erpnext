@@ -5,7 +5,7 @@
    "label": "Warehouse wise Stock Value"
   }
  ],
- "content": "[{\"type\":\"onboarding\",\"data\":{\"onboarding_name\":\"Stock\",\"col\":12}},{\"type\":\"chart\",\"data\":{\"chart_name\":\"Warehouse wise Stock Value\",\"col\":12}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Material Request\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Entry\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Receipt\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Balance\",\"col\":3}},{\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"type\":\"spacer\",\"data\":{\"col\":12}},{\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters &amp; Reports</b></span>\",\"col\":12}},{\"type\":\"card\",\"data\":{\"card_name\":\"Items and Pricing\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Stock Transactions\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Stock Reports\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Serial No and Batch\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Tools\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Key Reports\",\"col\":4}},{\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
+ "content": "[{\"id\":\"33QBxX9tFK\",\"type\":\"chart\",\"data\":{\"chart_name\":\"Warehouse wise Stock Value\",\"col\":12}},{\"id\":\"oN6sX1LSfV\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"WGP1fjqDnO\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"C49GvYFa52\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Item\",\"col\":3}},{\"id\":\"jAhiE8wfvi\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Material Request\",\"col\":3}},{\"id\":\"5mKtwqcyCh\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Entry\",\"col\":3}},{\"id\":\"Bw9u94_Dz6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Purchase Receipt\",\"col\":3}},{\"id\":\"ocR7HI-ipS\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Delivery Note\",\"col\":3}},{\"id\":\"WK6gvAcX4L\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Ledger\",\"col\":3}},{\"id\":\"RFzcdPf853\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Stock Balance\",\"col\":3}},{\"id\":\"lMUGjMSVhH\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Dashboard\",\"col\":3}},{\"id\":\"5mamZHwR2-\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"f6eupfdmnm\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Masters &amp; Reports</b></span>\",\"col\":12}},{\"id\":\"ZDU8ZD7cRC\",\"type\":\"card\",\"data\":{\"card_name\":\"Items and Pricing\",\"col\":4}},{\"id\":\"h8d4U5rMfB\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock Transactions\",\"col\":4}},{\"id\":\"FVUjYrl0TG\",\"type\":\"card\",\"data\":{\"card_name\":\"Stock Reports\",\"col\":4}},{\"id\":\"91D-o12fXR\",\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}},{\"id\":\"-6xw72Kugz\",\"type\":\"card\",\"data\":{\"card_name\":\"Serial No and Batch\",\"col\":4}},{\"id\":\"3V5pnSccYx\",\"type\":\"card\",\"data\":{\"card_name\":\"Tools\",\"col\":4}},{\"id\":\"dfo3FIY_32\",\"type\":\"card\",\"data\":{\"card_name\":\"Key Reports\",\"col\":4}},{\"id\":\"WNWnFujnFG\",\"type\":\"card\",\"data\":{\"card_name\":\"Other Reports\",\"col\":4}}]",
  "creation": "2020-03-02 15:43:10.096528",
  "custom_blocks": [],
  "docstatus": 0,
@@ -659,7 +659,7 @@
    "is_query_report": 1,
    "label": "Stock Balance",
    "link_count": 0,
-   "link_to": "Stock Balance",
+   "link_to": "Custom Stock Balance",
    "link_type": "Report",
    "onboard": 1,
    "type": "Link"
@@ -719,7 +719,7 @@
    "type": "Link"
   }
  ],
- "modified": "2023-05-24 14:47:21.707580",
+ "modified": "2024-05-07 14:08:42.667526",
  "modified_by": "Administrator",
  "module": "Stock",
  "name": "Stock",
@@ -729,8 +729,36 @@
  "public": 1,
  "quick_lists": [],
  "restrict_to_domain": "",
- "roles": [],
- "sequence_id": 7.0,
+ "roles": [
+  {
+   "role": "Stock Manager"
+  },
+  {
+   "role": "Stock User"
+  },
+  {
+   "role": "Stock Transfer Authority"
+  },
+  {
+   "role": "Stock Cancel Authority"
+  },
+  {
+   "role": "Manufacturing"
+  },
+  {
+   "role": "Manufacturing Manager"
+  },
+  {
+   "role": "Manufacturing User"
+  },
+  {
+   "role": "Quality Inspection Role"
+  },
+  {
+   "role": "Quality Manager"
+  }
+ ],
+ "sequence_id": 11.0,
  "shortcuts": [
   {
    "color": "Green",
@@ -739,6 +767,11 @@
    "link_to": "Item",
    "stats_filter": "{\n    \"disabled\" : 0\n}",
    "type": "DocType"
+  },
+  {
+   "label": "Stock Balance",
+   "link_to": "Custom Stock Balance",
+   "type": "Report"
   },
   {
    "color": "Yellow",
@@ -772,11 +805,6 @@
   {
    "label": "Stock Ledger",
    "link_to": "Stock Ledger",
-   "type": "Report"
-  },
-  {
-   "label": "Stock Balance",
-   "link_to": "Stock Balance",
    "type": "Report"
   },
   {

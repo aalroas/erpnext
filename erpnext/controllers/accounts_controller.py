@@ -1158,8 +1158,11 @@ class AccountsController(TransactionBase):
 
 		credit_or_debit = "credit" if self.doctype == "Purchase Invoice" else "debit"
 		against = self.supplier if self.doctype == "Purchase Invoice" else self.customer
+		from ekin_erp.utils import get_currency_precision
+		company_currency = erpnext.get_company_currency(self.company)
+		precision = get_currency_precision(company_currency) or 4
 
-		if precision_loss:
+		if flt(precision_loss, precision):
 			gl_entries.append(
 				self.get_gl_dict(
 					{

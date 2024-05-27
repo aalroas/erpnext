@@ -406,10 +406,13 @@ def validate_cwip_accounts(gl_map):
 
 
 def process_debit_credit_difference(gl_map):
-	precision = get_field_precision(
-		frappe.get_meta("GL Entry").get_field("debit"),
-		currency=frappe.get_cached_value("Company", gl_map[0].company, "default_currency"),
-	)
+	# precision = get_field_precision(
+	# 	frappe.get_meta("GL Entry").get_field("debit"),
+	# 	currency=frappe.get_cached_value("Company", gl_map[0].company, "default_currency"),
+	# )
+	from ekin_erp.utils import get_currency_precision
+	company_currency = erpnext.get_company_currency(gl_map[0].company)
+	precision = get_currency_precision(company_currency) or 4
 
 	voucher_type = gl_map[0].voucher_type
 	voucher_no = gl_map[0].voucher_no
