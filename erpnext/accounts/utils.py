@@ -541,7 +541,7 @@ def check_if_advance_entry_modified(args):
 			)
 
 	if not ret:
-		throw(_("""Payment Entry has been modified after you pulled it. Please pull it again."""))
+		throw(_("""Payment Entry has been modified after you pulled it. Please pull it again. Party maybe changed or duplicate Party found."""))
 
 
 def validate_allocated_amount(args):
