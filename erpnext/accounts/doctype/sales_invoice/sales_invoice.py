@@ -1789,22 +1789,22 @@ def is_overdue(doc, total):
 	if outstanding_amount <= 0:
 		return
 
-	today = getdate()
-	if doc.get("is_pos") or not doc.get("payment_schedule"):
-		return getdate(doc.due_date) < today
+	# today = getdate()
+	# if doc.get("is_pos") or not doc.get("payment_schedule"):
+	# 	return getdate(doc.due_date) < today
 
-	# calculate payable amount till date
-	payment_amount_field = (
-		"base_payment_amount" if doc.party_account_currency != doc.currency else "payment_amount"
-	)
+	# # calculate payable amount till date
+	# payment_amount_field = (
+	# 	"base_payment_amount" if doc.party_account_currency != doc.currency else "payment_amount"
+	# )
 
-	payable_amount = sum(
-		payment.get(payment_amount_field)
-		for payment in doc.payment_schedule
-		if getdate(payment.due_date) < today
-	)
+	# payable_amount = sum(
+	# 	payment.get(payment_amount_field)
+	# 	for payment in doc.payment_schedule
+	# 	if getdate(payment.due_date) < today
+	# )
 
-	return (total - outstanding_amount) < payable_amount
+	return total == outstanding_amount
 
 
 def get_discounting_status(sales_invoice):
