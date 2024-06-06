@@ -541,8 +541,7 @@ def check_if_advance_entry_modified(args):
 			)
 
 	if not ret:
-		throw(_("""Payment Entry has been modified after you pulled it. Please pull it again. Party maybe changed or duplicate Party found."""))
-
+		throw(_("""Payment Entry has been modified after you pulled it. Please pull it again. Party maybe changed or duplicate Party found. Check party name and  party type in Journal Entry or Payment Entry"""))
 
 def validate_allocated_amount(args):
 	precision = args.get("precision") or frappe.db.get_single_value(
