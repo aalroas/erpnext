@@ -606,6 +606,9 @@ def update_reference_in_journal_entry(d, journal_entry, do_not_save=False):
 	if not do_not_save:
 		journal_entry.save(ignore_permissions=True)
 
+	if new_row.debit == 0 and new_row.credit == 0:
+		frappe.throw(_("Both Debit and Credit cannot be 0 {0}"))
+
 	return new_row.name
 
 
