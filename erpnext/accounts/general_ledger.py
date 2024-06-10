@@ -634,13 +634,13 @@ def check_freezing_date(posting_date, adv_adj=False):
 
 
 def validate_against_pcv(is_opening, posting_date, company):
-	if is_opening and frappe.db.exists(
-		"Period Closing Voucher", {"docstatus": 1, "company": company}
-	):
-		frappe.throw(
-			_("Opening Entry can not be created after Period Closing Voucher is created."),
-			title=_("Invalid Opening Entry"),
-		)
+	# if is_opening and frappe.db.exists(
+	# 	"Period Closing Voucher", {"docstatus": 1, "company": company}
+	# ):
+	# 	frappe.throw(
+	# 		_("Opening Entry can not be created after Period Closing Voucher is created."),
+	# 		title=_("Invalid Opening Entry"),
+	# 	)
 
 	last_pcv_date = frappe.db.get_value(
 		"Period Closing Voucher", {"docstatus": 1, "company": company}, "max(posting_date)"
