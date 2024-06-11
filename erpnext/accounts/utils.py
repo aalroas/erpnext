@@ -1889,7 +1889,7 @@ def create_gain_loss_journal(
 		is_2023_invoice = True
 	if is_2023_invoice:
 		frappe.log_error(f"2023 Invoice: {ref1_dt} {ref1_dn} Gain Loss not created")
-		return
+		return False
 
 	party_account_currency = frappe.get_cached_value("Account", party_account, "account_currency")
 

@@ -1061,11 +1061,12 @@ class AccountsController(TransactionBase):
 									arg.get("referenced_row"),
 									arg.get("cost_center"),
 								)
-								frappe.msgprint(
-									_("Exchange Gain/Loss amount has been booked through {0}").format(
-										get_link_to_form("Journal Entry", je)
+								if je:
+									frappe.msgprint(
+										_("Exchange Gain/Loss amount has been booked through {0}").format(
+											get_link_to_form("Journal Entry", je)
+										)
 									)
-								)
 
 			if self.get("doctype") == "Payment Entry":
 				# For Payment Entry, exchange_gain_loss field in the `references` table is the trigger for journal creation
@@ -1141,11 +1142,12 @@ class AccountsController(TransactionBase):
 							d.idx,
 							self.cost_center,
 						)
-						frappe.msgprint(
-							_("Exchange Gain/Loss amount has been booked through {0}").format(
-								get_link_to_form("Journal Entry", je)
+						if je:
+							frappe.msgprint(
+								_("Exchange Gain/Loss amount has been booked through {0}").format(
+									get_link_to_form("Journal Entry", je)
+								)
 							)
-						)
 
 	def make_precision_loss_gl_entry(self, gl_entries):
 		round_off_account, round_off_cost_center = get_round_off_account_and_cost_center(
