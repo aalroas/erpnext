@@ -1882,13 +1882,11 @@ def create_gain_loss_journal(
 	journal_entry.posting_date = posting_date or nowdate()
 	journal_entry.multi_currency = 1
 	journal_entry.is_system_generated = True
-	is_2023_invoice = False
 
-	reference_date = frappe.db.get_value(ref1_dt, ref1_dn, "posting_date")
-	if reference_date and reference_date.year == 2023:
-		is_2023_invoice = True
-	if is_2023_invoice:
-		frappe.log_error(f"2023 Invoice: {ref1_dt} {ref1_dn} Gain Loss not created")
+	invoice_doc_date = frappe.db.get_value(ref1_dt, ref1_dn, "posting_date")
+	payment_doc_date = frappe.db.get_value(ref2_dt, ref2_dn, "posting_date")
+	if invoice_doc_date.year <= 2023 and payment_doc_date.year <= 2023:
+		frappe.log_error(f"2023 Invoice: {ref1_dt} {ref1_dn} and Payment: {ref2_dt} {ref2_dn} no need to create exchange gain/loss journal entry")
 		return False
 
 	party_account_currency = frappe.get_cached_value("Account", party_account, "account_currency")
