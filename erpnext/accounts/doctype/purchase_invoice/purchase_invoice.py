@@ -421,14 +421,14 @@ class PurchaseInvoice(BuyingController):
 						get_link_to_form("Buying Settings", "Buying Settings", "Buying Settings"),
 					)
 					throw(msg, title=_("Mandatory Purchase Receipt"))
-				# else:
-				# 	if int(frappe.db.get_single_value("Ekin ERP Setting", "validate_billed_qty_in_purchase_invoice")):
-				# 		if d.pr_detail and d.purchase_receipt:
-				# 			pr_qty = frappe.db.get_value("Purchase Receipt Item", d.pr_detail, "received_qty")
-				# 			billed_invoice_qty = frappe.db.sql("select sum(pii.qty)  as billed_invoice_qty  from `tabPurchase Invoice Item` pii inner join `tabPurchase Invoice` pi on pi.name = pii.parent where pii.pr_detail = %s and pii.purchase_receipt = %s and pi.docstatus = 1 group by pii.pr_detail", (d.pr_detail, d.purchase_receipt), as_dict=True)
-				# 			total_qty = (billed_invoice_qty[0].billed_invoice_qty if billed_invoice_qty else 0) + d.qty
-				# 			if total_qty > pr_qty:
-				# 				throw(_("Row {0}: Billed total qty {1} cannot be greater than received quantity {2} in {3}").format(d.idx, total_qty, pr_qty, frappe.get_desk_link("Purchase Receipt", d.purchase_receipt)))
+				else:
+					if int(frappe.db.get_single_value("Ekin ERP Setting", "validate_billed_qty_in_purchase_invoice")):
+						if d.pr_detail and d.purchase_receipt:
+							pr_qty = frappe.db.get_value("Purchase Receipt Item", d.pr_detail, "received_qty")
+							billed_invoice_qty = frappe.db.sql("select sum(pii.qty)  as billed_invoice_qty  from `tabPurchase Invoice Item` pii inner join `tabPurchase Invoice` pi on pi.name = pii.parent where pii.pr_detail = %s and pii.purchase_receipt = %s and pi.docstatus = 1 group by pii.pr_detail", (d.pr_detail, d.purchase_receipt), as_dict=True)
+							total_qty = (billed_invoice_qty[0].billed_invoice_qty if billed_invoice_qty else 0) + d.qty
+							if total_qty > pr_qty:
+								throw(_("Row {0}: Billed total qty {1} cannot be greater than received quantity {2} in {3}").format(d.idx, total_qty, pr_qty, frappe.get_desk_link("Purchase Receipt", d.purchase_receipt)))
 
 	def validate_write_off_account(self):
 		if self.write_off_amount and not self.write_off_account:
