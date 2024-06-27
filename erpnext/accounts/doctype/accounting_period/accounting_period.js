@@ -26,5 +26,13 @@ frappe.ui.form.on('Accounting Period', {
 				query: "erpnext.controllers.queries.get_doctypes_for_closing",
 			}
 		});
-	}
+	},
+	start_date: function (frm) {
+		if (frm.doc.start_date) {
+		  const [year, month] = frm.doc.start_date.split("-");
+		  const lastDayOfMonth = new Date(year, parseInt(month), 0);
+		  frm.set_value("end_date",frappe.datetime.get_datetime_as_string(lastDayOfMonth));
+		}
+	  },
+
 });

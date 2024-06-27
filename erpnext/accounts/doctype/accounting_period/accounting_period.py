@@ -5,6 +5,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from frappe.utils import getdate
 
 
 class OverlapError(frappe.ValidationError):
@@ -24,7 +25,9 @@ class AccountingPeriod(Document):
 
 	def autoname(self):
 		company_abbr = frappe.get_cached_value("Company", self.company, "abbr")
-		self.name = " - ".join([self.period_name, company_abbr])
+		name = company_abbr + " - " + str(getdate(self.start_date).year) +" - "+ getdate(self.start_date).strftime("%m")
+		self.name = name
+		self.period_name = name
 
 	def validate_overlap(self):
 		existing_accounting_period = frappe.db.sql(
