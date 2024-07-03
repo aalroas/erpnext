@@ -56,7 +56,13 @@ erpnext.buying.BuyingController = class BuyingController extends erpnext.Transac
 		if(this.frm.fields_dict.buying_price_list) {
 			this.frm.set_query("buying_price_list", function() {
 				return{
-					filters: { 'buying': 1 }
+					filters: {
+						'buying': 1,
+						"custom_party_type": ["in", ["Supplier", ""]],
+						"custom_party": cur_frm.doc.supplier,
+						"currency": cur_frm.doc.currency,
+						"custom_is_standard_price_list": 0
+					}
 				}
 			});
 		}
