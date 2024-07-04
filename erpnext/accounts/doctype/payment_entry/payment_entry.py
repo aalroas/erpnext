@@ -578,10 +578,11 @@ class PaymentEntry(AccountsController):
 					UPDATE `tabPayment Schedule`
 					SET
 						paid_amount = `paid_amount` - %s,
+						custom_paid_amount = `custom_paid_amount` - %s,
 						discounted_amount = `discounted_amount` - %s,
 						outstanding = `outstanding` + %s
 					WHERE parent = %s and payment_term = %s""",
-					(allocated_amount - discounted_amt, discounted_amt, allocated_amount, key[1], key[0]),
+					(allocated_amount - discounted_amt, allocated_amount - discounted_amt, discounted_amt, allocated_amount, key[1], key[0]),
 				)
 			else:
 				if allocated_amount > outstanding:
@@ -597,10 +598,11 @@ class PaymentEntry(AccountsController):
 						UPDATE `tabPayment Schedule`
 						SET
 							paid_amount = `paid_amount` + %s,
+							custom_paid_amount = `custom_paid_amount` + %s,
 							discounted_amount = `discounted_amount` + %s,
 							outstanding = `outstanding` - %s
 						WHERE parent = %s and payment_term = %s""",
-						(allocated_amount - discounted_amt, discounted_amt, allocated_amount, key[1], key[0]),
+						(allocated_amount - discounted_amt, allocated_amount - discounted_amt, discounted_amt, allocated_amount, key[1], key[0]),
 					)
 
 	def get_allocated_amount_in_transaction_currency(
