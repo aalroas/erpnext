@@ -56,15 +56,7 @@ erpnext.buying.BuyingController = class BuyingController extends erpnext.Transac
 		if(this.frm.fields_dict.buying_price_list) {
 			this.frm.set_query("buying_price_list", function() {
 				frappe.db.get_single_value("Custom Buying Settings", "ignore_party_based_price_list_validation").then(function(ignore_party_based_price_list_validation) {
-					if (ignore_party_based_price_list_validation === 1) {
-						console.log("ignore_party_based_price_list_validation === 1");
-						return {
-							filters: {
-								'buying': 1,
-								"currency": cur_frm.doc.currency
-							}
-						}
-					} else {
+					if (ignore_party_based_price_list_validation == 0) {
 						return {
 							filters: {
 								'buying': 1,
@@ -72,6 +64,13 @@ erpnext.buying.BuyingController = class BuyingController extends erpnext.Transac
 								"custom_party": cur_frm.doc.supplier,
 								"currency": cur_frm.doc.currency,
 								"custom_is_standard_price_list": 0
+							}
+						}
+					} else {
+						return {
+							filters: {
+								'buying': 1,
+								"currency": cur_frm.doc.currency
 							}
 						}
 					}
