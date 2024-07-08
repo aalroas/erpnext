@@ -5,7 +5,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import getdate
+from frappe.utils import getdate, date_diff
 
 
 class OverlapError(frappe.ValidationError):
@@ -25,7 +25,11 @@ class AccountingPeriod(Document):
 
 	def autoname(self):
 		company_abbr = frappe.get_cached_value("Company", self.company, "abbr")
-		name = company_abbr + " - " + str(getdate(self.start_date).year) +" - "+ getdate(self.start_date).strftime("%m")
+		days_diff = date_diff(self.end_date, self.start_date) + 1
+		if days_diff < 32:
+			name = company_abbr + " - " + str(getdate(self.start_date).year) + " / " + str(getdate(self.start_date).strftime("%m"))
+		else:
+			name = company_abbr + " - " + str(getdate(self.start_date).year) + " / " + str(getdate(self.start_date).strftime("%m")) + " - " + str(getdate(self.end_date).year) +  " / " + str(getdate(self.end_date).strftime("%m"))
 		self.name = name
 		self.period_name = name
 
