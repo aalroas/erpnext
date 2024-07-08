@@ -58,7 +58,7 @@ erpnext.buying.BuyingController = class BuyingController extends erpnext.Transac
 				if (cur_frm.ignore_party_based_price_list_validation == undefined){
 					frappe.db.get_single_value("Custom Buying Settings", "ignore_party_based_price_list_validation").then(function(ignore_party_based_price_list_validation) {
 						cur_frm.ignore_party_based_price_list_validation = ignore_party_based_price_list_validation;
-						if (ignore_party_based_price_list_validation == 0) {
+						if (ignore_party_based_price_list_validation == 0 && cur_frm.doctype == "Purchase Order") {
 							return {
 								filters: {
 									'buying': 1,
@@ -78,7 +78,7 @@ erpnext.buying.BuyingController = class BuyingController extends erpnext.Transac
 						}
 					});
 				}else {
-					if (cur_frm.ignore_party_based_price_list_validation == 0) {
+					if (cur_frm.ignore_party_based_price_list_validation == 0 && cur_frm.doctype == "Purchase Order") {
 						return {
 							filters: {
 								'buying': 1,
