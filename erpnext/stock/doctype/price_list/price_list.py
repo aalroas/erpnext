@@ -17,18 +17,18 @@ class PriceList(Document):
 			self.check_impact_on_shopping_cart()
 
 	def on_update(self):
-		self.set_default_if_missing()
+		# self.set_default_if_missing()
 		self.update_item_price()
 		self.delete_price_list_details_key()
 
-	def set_default_if_missing(self):
-		if cint(self.selling):
-			if not frappe.db.get_value("Selling Settings", None, "selling_price_list"):
-				frappe.set_value("Selling Settings", "Selling Settings", "selling_price_list", self.name)
+	# def set_default_if_missing(self):
+	# 	if cint(self.selling):
+	# 		if not frappe.db.get_value("Selling Settings", None, "selling_price_list"):
+	# 			frappe.set_value("Selling Settings", "Selling Settings", "selling_price_list", self.name)
 
-		elif cint(self.buying):
-			if not frappe.db.get_value("Buying Settings", None, "buying_price_list"):
-				frappe.set_value("Buying Settings", "Buying Settings", "buying_price_list", self.name)
+	# 	elif cint(self.buying):
+	# 		if not frappe.db.get_value("Buying Settings", None, "buying_price_list"):
+	# 			frappe.set_value("Buying Settings", "Buying Settings", "buying_price_list", self.name)
 
 	def update_item_price(self):
 		frappe.db.sql(
