@@ -611,7 +611,6 @@ def update_reference_in_journal_entry(d, journal_entry, do_not_save=False):
 
 	return new_row.name
 
-
 def update_reference_in_payment_entry(
 	d, payment_entry, do_not_save=False, skip_ref_details_update_for_pe=False
 ):
@@ -648,7 +647,7 @@ def update_reference_in_payment_entry(
 	if not skip_ref_details_update_for_pe:
 		payment_entry.set_missing_ref_details()
 	payment_entry.set_amounts()
-	payment_entry.make_exchange_gain_loss_journal()
+	payment_entry.make_exchange_gain_loss_journal(posting_date=d.get("custom_posting_date"))
 
 	if not do_not_save:
 		payment_entry.save(ignore_permissions=True)
@@ -1567,7 +1566,7 @@ def create_payment_ledger_entry(
 		ple_map = get_payment_ledger_entries(gl_entries, cancel=cancel)
 
 		for entry in ple_map:
-
+			print(entry, 'erpnext')
 			ple = frappe.get_doc(entry)
 
 			if cancel:

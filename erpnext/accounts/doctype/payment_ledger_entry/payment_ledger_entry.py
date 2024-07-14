@@ -128,6 +128,13 @@ class PaymentLedgerEntry(Document):
 
 	def validate(self):
 		self.validate_account()
+		self.set_entry_type()
+
+	def set_entry_type(self):
+		if self.voucher_type == "Journal Entry":
+			self.custom_entry_type = frappe.db.get_value("Journal Entry", self.voucher_no, "voucher_type")
+		else:
+			self.custom_entry_type = self.voucher_type
 
 	def on_update(self):
 		adv_adj = self.flags.adv_adj
