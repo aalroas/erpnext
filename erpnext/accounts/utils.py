@@ -1569,7 +1569,8 @@ def create_payment_ledger_entry(
 
 			if entry.voucher_type == "Journal Entry":
 				voucher_type = frappe.db.get_value("Journal Entry", entry.voucher_no, "voucher_type")
-				if voucher_type in ["Exchange Rate Revaluation", "Reflection Entry","Exchange Gain Or Loss","Depreciation Entry", "Balance Transfer"]:
+				is_closing = frappe.db.get_value("Journal Entry", entry.voucher_no, "custom_is_closing")
+				if voucher_type in ["Reflection Entry", "Balance Transfer"] or is_closing:
 					continue
 
 			ple = frappe.get_doc(entry)
