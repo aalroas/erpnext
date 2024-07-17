@@ -951,6 +951,7 @@ def get_outstanding_invoices(
 							"outstanding_amount": outstanding_amount,
 							"due_date": d.due_date,
 							"currency": d.currency,
+							"company": d.company,
 						}
 					)
 				)
@@ -1732,6 +1733,7 @@ class QueryPaymentLedger(object):
 				ple.due_date,
 				ple.account_currency.as_("currency"),
 				ple.cost_center.as_("cost_center"),
+				ple.company,
 				Sum(ple.amount).as_("amount"),
 				Sum(ple.amount_in_account_currency).as_("amount_in_account_currency"),
 			)
@@ -1754,6 +1756,7 @@ class QueryPaymentLedger(object):
 				ple.party,
 				ple.posting_date,
 				ple.due_date,
+				ple.company,
 				ple.account_currency.as_("currency"),
 				Sum(ple.amount).as_("amount"),
 				Sum(ple.amount_in_account_currency).as_("amount_in_account_currency"),
@@ -1783,6 +1786,7 @@ class QueryPaymentLedger(object):
 				Table("vouchers").voucher_no,
 				Table("vouchers").party_type,
 				Table("vouchers").party,
+				Table("vouchers").company,
 				Table("vouchers").posting_date,
 				Table("vouchers").amount.as_("invoice_amount"),
 				Table("vouchers").amount_in_account_currency.as_("invoice_amount_in_account_currency"),
