@@ -1902,7 +1902,7 @@ def create_gain_loss_journal(
 	to_date = frappe.db.sql("select max(to_date) as max_to_date from `tabE-Netbook` where company = %s and docstatus = 1", e_defter_company, as_dict=1)
 
 	e_defter_period_month = to_date[0].max_to_date.month
-	e_defter_period = e_defter_period_month >= invoice_doc_date.month or e_defter_period_month >= payment_doc_date.month
+	e_defter_period = e_defter_period_month >= payment_doc_date.month
 
 	if past_years_conditions or e_defter_period:
 		frappe.log_error(f"no EG/L created for Invoice: {ref1_dt} {ref1_dn} and Payment: {ref2_dt} {ref2_dn}")
