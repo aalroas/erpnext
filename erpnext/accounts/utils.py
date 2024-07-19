@@ -628,6 +628,8 @@ def update_reference_in_payment_entry(
 		existing_row = payment_entry.get("references", {"name": d["voucher_detail_no"]})[0]
 		original_row = existing_row.as_dict().copy()
 		existing_row.update(reference_details)
+		if d.against_voucher_type in ("Sales Invoice", "Purchase Invoice"):
+			existing_row.set("payment_term", None)
 
 		if d.allocated_amount < original_row.allocated_amount:
 			new_row = payment_entry.append("references")
