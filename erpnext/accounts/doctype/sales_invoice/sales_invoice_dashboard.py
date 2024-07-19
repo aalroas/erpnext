@@ -12,6 +12,7 @@ def get_data():
 			"Sales Invoice": "return_against",
 			"Auto Repeat": "reference_document",
 			"Purchase Invoice": "inter_company_invoice_reference",
+			"Inter Company Payment": "reference_name",
 		},
 		"internal_links": {
 			"Sales Order": ["items", "sales_order"],
@@ -27,6 +28,7 @@ def get_data():
 					"Journal Entry",
 					"Invoice Discounting",
 					"Dunning",
+					"Inter Company Payment",
 				],
 			},
 			{"label": _("Reference"), "items": ["Timesheet", "Delivery Note", "Sales Order"]},
