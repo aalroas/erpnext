@@ -8,7 +8,7 @@ from functools import reduce
 import frappe
 from frappe import ValidationError, _, qb, scrub, throw
 from frappe.utils import cint, comma_or, flt, getdate, nowdate
-from frappe.utils.data import comma_and, fmt_money
+from frappe.utils.data import comma_and, fmt_money, get_link_to_form
 
 import erpnext
 from erpnext.accounts.doctype.bank_account.bank_account import (
@@ -563,7 +563,7 @@ class PaymentEntry(AccountsController):
 
 		for idx, (key, allocated_amount) in enumerate(invoice_payment_amount_map.items(), 1):
 			if not invoice_paid_amount_map.get(key):
-				frappe.throw(_("Payment term {0} not used in {1}").format(key[0], key[1]))
+				frappe.throw(_("Payment term {0} not used in {1}").format(get_link_to_form("PaymentTerm", key[0]), get_link_to_form(key[2], key[1])))
 
 			allocated_amount = self.get_allocated_amount_in_transaction_currency(
 				allocated_amount, key[2], key[1]
