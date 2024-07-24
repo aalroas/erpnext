@@ -1581,12 +1581,28 @@ def create_payment_ledger_entry(
 			if cancel:
 				delink_original_entry(ple)
 
+			if already_exists(entry):
+				continue
+
 			ple.flags.ignore_permissions = 1
 			ple.flags.adv_adj = adv_adj
 			ple.flags.from_repost = from_repost
 			ple.flags.update_outstanding = update_outstanding
 			ple.submit()
 
+
+def already_exists(entry):
+    return frappe.db.exists("Payment Ledger Entry",{
+		"voucher_no": entry.voucher_no,
+		"account": entry.account,
+		"party_type": entry.party_type,
+		"party": entry.party,
+		"against_voucher_type": entry.against_voucher_type,
+		"against_voucher_no": entry.against_voucher_no,
+		"amount": entry.amount,
+		"amount_in_account_currency": entry.amount_in_account_currency,
+		"delinked": entry.delinked
+	})
 
 def update_voucher_outstanding(voucher_type, voucher_no, account, party_type, party):
 	ple = frappe.qb.DocType("Payment Ledger Entry")
