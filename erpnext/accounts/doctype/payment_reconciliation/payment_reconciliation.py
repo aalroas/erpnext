@@ -213,14 +213,16 @@ class PaymentReconciliation(Document):
 		# Fetch JVs, Sales and Purchase Invoices for 'invoices' to reconcile against
 
 		self.build_qb_filter_conditions(get_invoices=True)
-
+		min_outstanding=self.minimum_invoice_amount if self.minimum_invoice_amount else None
+		if not min_outstanding or min_outstanding < 0.0099:
+			min_outstanding = 0.0099
 		non_reconciled_invoices = get_outstanding_invoices(
 			self.party_type,
 			self.party,
 			self.receivable_payable_account,
 			common_filter=self.common_filter_conditions,
 			posting_date=self.ple_posting_date_filter,
-			min_outstanding=self.minimum_invoice_amount if self.minimum_invoice_amount else None,
+			min_outstanding=min_outstanding,
 			max_outstanding=self.maximum_invoice_amount if self.maximum_invoice_amount else None,
 			accounting_dimensions=self.accounting_dimension_filter_conditions,
 			limit=self.invoice_limit,
@@ -554,15 +556,19 @@ class PaymentReconciliation(Document):
 			condition += (
 				" and unallocated_amount >= {0}".format(flt(self.minimum_payment_amount))
 				if get_payments
-				else " and total_debit >= {0}".format(flt(self.minimum_payment_amount))
+				else " and debit_in_account_currency >= {0}".format(flt(self.minimum_payment_amount))
 			)
 		if self.maximum_payment_amount:
 			condition += (
 				" and unallocated_amount <= {0}".format(flt(self.maximum_payment_amount))
 				if get_payments
-				else " and total_debit <= {0}".format(flt(self.maximum_payment_amount))
+				else " and debit_in_account_currency <= {0}".format(flt(self.maximum_payment_amount))
 			)
-
+		condition += (
+				" and unallocated_amount >= 0.0099"
+				if get_payments
+				else " and debit_in_account_currency >=  0.0099"
+			)
 		return condition
 
 
