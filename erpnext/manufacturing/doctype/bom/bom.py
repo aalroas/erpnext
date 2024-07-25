@@ -857,6 +857,8 @@ class BOM(WebsiteGenerator):
 			)
 
 			if act_pbom and act_pbom[0][0]:
+				if self.flags.task_based_update:
+					return
 				frappe.throw(_("Cannot deactivate or cancel BOM as it is linked with other BOMs"))
 
 	def validate_transfer_against(self):
