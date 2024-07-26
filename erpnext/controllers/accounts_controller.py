@@ -1772,7 +1772,7 @@ class AccountsController(TransactionBase):
 			self.remove(item)
 
 	def set_payment_schedule(self):
-		if self.doctype == "Sales Invoice" and self.is_pos:
+		if self.doctype in ("Sales Invoice" ,"Purchase Invoice"):
 			self.payment_terms_template = ""
 			return
 
@@ -1928,9 +1928,10 @@ class AccountsController(TransactionBase):
 			self.append("payment_schedule", payment_schedule)
 
 	def set_due_date(self):
-		due_dates = [d.due_date for d in self.get("payment_schedule") if d.due_date]
-		if due_dates:
-			self.due_date = max(due_dates)
+		if not self.doctype in ("Sales Invoice" ,"Purchase Invoice"):
+			due_dates = [d.due_date for d in self.get("payment_schedule") if d.due_date]
+			if due_dates:
+				self.due_date = max(due_dates)
 
 	def validate_payment_schedule_dates(self):
 		dates = []
