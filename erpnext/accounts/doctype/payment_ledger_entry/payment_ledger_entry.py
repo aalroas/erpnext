@@ -16,7 +16,7 @@ from erpnext.accounts.doctype.gl_entry.gl_entry import (
 	validate_balance_type,
 	validate_frozen_account,
 )
-from erpnext.accounts.utils import update_voucher_outstanding
+from ekin_erp.utils import update_voucher_outstanding
 from erpnext.exceptions import InvalidAccountDimensionError, MandatoryAccountDimensionError
 
 
