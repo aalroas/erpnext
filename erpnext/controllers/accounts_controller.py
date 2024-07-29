@@ -1956,7 +1956,7 @@ class AccountsController(TransactionBase):
 			)
 
 	def validate_payment_schedule_amount(self):
-		if self.doctype == "Sales Invoice" and self.is_pos:
+		if self.doctype in ("Sales Invoice", "Purchase Invoice"):
 			return
 
 		party_account_currency = self.get("party_account_currency")
