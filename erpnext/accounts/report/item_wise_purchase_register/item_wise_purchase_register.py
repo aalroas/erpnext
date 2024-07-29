@@ -80,6 +80,9 @@ def _execute(filters=None, additional_table_columns=None):
 			"posting_date": d.posting_date,
 			"supplier": d.supplier,
 			"supplier_name": d.supplier_name,
+			"tax_id": d.tax_id,
+			"bill_no": d.bill_no,
+			"bill_date": d.bill_date,
 			**get_values_for_columns(additional_table_columns, d),
 			"credit_to": d.credit_to,
 			"mode_of_payment": d.mode_of_payment,
@@ -195,6 +198,9 @@ def get_columns(additional_table_columns, filters):
 					"width": 120,
 				},
 				{"label": _("Supplier Name"), "fieldname": "supplier_name", "fieldtype": "Data", "width": 120},
+				{"label": _("Tax ID"), "fieldname": "tax_id", "fieldtype": "Data", "width": 120},
+				{"label": _("S. Invoice NO"), "fieldname": "bill_no", "fieldtype": "Data", "width": 120},
+				{"label": _("S. Invoice Date"), "fieldname": "bill_date", "fieldtype": "Date", "width": 120},
 			]
 		)
 
@@ -317,6 +323,10 @@ def get_items(filters, additional_query_columns):
 			`tabPurchase Invoice`.posting_date, `tabPurchase Invoice`.credit_to, `tabPurchase Invoice`.company,
 			`tabPurchase Invoice`.supplier, `tabPurchase Invoice`.remarks, `tabPurchase Invoice`.base_net_total,
 			`tabPurchase Invoice`.unrealized_profit_loss_account,
+
+  			 `tabPurchase Invoice`.bill_no,`tabPurchase Invoice`.bill_date,
+      		 `tabSupplier`.tax_id,
+
 			`tabPurchase Invoice Item`.`item_code`, `tabPurchase Invoice Item`.description,
 			`tabPurchase Invoice Item`.`item_name` as pi_item_name, `tabPurchase Invoice Item`.`item_group` as pi_item_group,
 			`tabItem`.`item_name` as i_item_name, `tabItem`.`item_group` as i_item_group,
@@ -325,9 +335,9 @@ def get_items(filters, additional_query_columns):
 			`tabPurchase Invoice Item`.`expense_account`, `tabPurchase Invoice Item`.`stock_qty`,
 			`tabPurchase Invoice Item`.`stock_uom`, `tabPurchase Invoice Item`.`base_net_amount`,
 			`tabPurchase Invoice`.`supplier_name`, `tabPurchase Invoice`.`mode_of_payment` {0}
-		from `tabPurchase Invoice`, `tabPurchase Invoice Item`, `tabItem`
+		from `tabPurchase Invoice`, `tabPurchase Invoice Item`, `tabItem`, `tabSupplier`
 		where `tabPurchase Invoice`.name = `tabPurchase Invoice Item`.`parent` and
-			`tabItem`.name = `tabPurchase Invoice Item`.`item_code` and
+			`tabItem`.name = `tabPurchase Invoice Item`.`item_code` and `tabSupplier`.name = `tabPurchase Invoice`.supplier and
 			`tabPurchase Invoice`.docstatus = 1 {1}
 	""".format(
 			additional_query_columns, conditions
