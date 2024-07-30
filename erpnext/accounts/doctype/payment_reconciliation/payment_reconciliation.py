@@ -47,8 +47,8 @@ class PaymentReconciliation(Document):
 
 		non_reconciled_payments = payment_entries + journal_entries + dr_or_cr_notes
 
-		if self.payment_limit:
-			non_reconciled_payments = non_reconciled_payments[: self.payment_limit]
+		# if self.payment_limit:
+		# 	non_reconciled_payments = non_reconciled_payments[: self.payment_limit]
 
 		non_reconciled_payments = sorted(
 			non_reconciled_payments, key=lambda k: k["posting_date"] or getdate(nowdate())
@@ -238,8 +238,8 @@ class PaymentReconciliation(Document):
 		# Happens when non-standalone cr/dr notes are linked with another invoice through journal entry
 		non_reconciled_invoices = [x for x in non_reconciled_invoices if x.voucher_no not in cr_dr_notes]
 
-		if self.invoice_limit:
-			non_reconciled_invoices = non_reconciled_invoices[: self.invoice_limit]
+		# if self.invoice_limit:
+		# 	non_reconciled_invoices = non_reconciled_invoices[: self.invoice_limit]
 
 		self.add_invoice_entries(non_reconciled_invoices)
 
