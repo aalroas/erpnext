@@ -96,7 +96,7 @@ $.extend(erpnext.utils, {
 			var company_wise_info = frm.doc.__onload.dashboard_info;
 			if(company_wise_info.length > 1) {
 				company_wise_info.forEach(function(info) {
-					erpnext.utils.add_indicator_for_multicompany(frm, info);
+					erpnext.utils.add_indicator_for_multicompany(frm, info, 4);
 				});
 			} else if (company_wise_info.length === 1) {
 				frm.dashboard.add_indicator(__('Annual Billing: {0}',
@@ -113,14 +113,14 @@ $.extend(erpnext.utils, {
 		}
 	},
 
-	add_indicator_for_multicompany: function(frm, info) {
+	add_indicator_for_multicompany: function(frm, info, padding=6) {
 		frm.dashboard.stats_area.show();
 		frm.dashboard.stats_area_row.addClass('flex');
 		frm.dashboard.stats_area_row.css('flex-wrap', 'wrap');
 
 		var color = info.total_unpaid ? 'orange' : 'green';
 
-		var indicator = $('<div class="flex-column col-xs-6">'+
+		var indicator = $(`<div class="flex-column col-xs-${padding}">`+
 			'<div style="margin-top:10px"><h6>'+info.company+'</h6></div>'+
 
 			'<div class="badge-link small" style="margin-bottom:10px"><span class="indicator blue">'+
