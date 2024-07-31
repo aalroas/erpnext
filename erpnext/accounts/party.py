@@ -762,7 +762,12 @@ def get_dashboard_info(party_type, party, loyalty_program=None):
 
 	doctype = "Sales Invoice" if party_type == "Customer" else "Purchase Invoice"
 
-	companies = frappe.get_all("GL Entry", filters={"is_cancelled": 0, 'party': party, 'party_type': party_type}, distinct=1, fields=["company"])
+	companies = frappe.get_all("GL Entry", filters={"is_cancelled": 0,
+                                                 	'party': party,
+                                                  	'party_type': party_type,
+                                                   	'posting_date': ("between",[current_fiscal_year.year_start_date, current_fiscal_year.year_end_date]),
+                                                   },
+                            	distinct=1, fields=["company"])
 
 	company_wise_info = []
 
