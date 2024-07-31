@@ -757,13 +757,12 @@ def get_timeline_data(doctype, name):
 
 
 def get_dashboard_info(party_type, party, loyalty_program=None):
+	from ekin_erp.utils import format_list
 	current_fiscal_year = get_fiscal_year(nowdate(), as_dict=True)
 
 	doctype = "Sales Invoice" if party_type == "Customer" else "Purchase Invoice"
 
-	companies = frappe.get_all(
-		doctype, filters={"docstatus": 1, party_type.lower(): party}, distinct=1, fields=["company"]
-	)
+	companies = frappe.get_all("GL Entry", filters={"is_cancelled": 0, 'party': party, 'party_type': party_type}, distinct=1, fields=["company"])
 
 	company_wise_info = []
 
@@ -802,22 +801,25 @@ def get_dashboard_info(party_type, party, loyalty_program=None):
 		)
 
 	company_wise_billing_this_year = frappe._dict()
-
+	ignored_vouchers = get_ignored_vouchers()
 	for d in company_wise_grand_total:
 		company_wise_billing_this_year.setdefault(
 			d.company, {"grand_total": d.grand_total, "base_grand_total": d.base_grand_total}
 		)
+	ignored_voucher_conditions =  ''
+	if  ignored_vouchers:
+		ignored_voucher_conditions = " and voucher_no not in {ignored_vouchers}".format(ignored_vouchers=format_list(ignored_vouchers))
 
 	company_wise_total_unpaid = frappe._dict(
 		frappe.db.sql(
 			"""
 		select company, sum(debit_in_account_currency) - sum(credit_in_account_currency)
 		from `tabGL Entry`
-		where party_type = %s and party=%s
-		and is_cancelled = 0
-		group by company""",
-			(party_type, party),
-		)
+		where party_type = '{party_type}' and party='{party}' {ignored_voucher_conditions}
+		and is_cancelled = 0 and posting_date between '{from_date}' and '{to_date}'
+		group by company""".format(
+				party_type=party_type, party=party,ignored_voucher_conditions=ignored_voucher_conditions, from_date=current_fiscal_year.year_start_date, to_date=current_fiscal_year.year_end_date
+		))
 	)
 
 	for d in companies:
@@ -849,8 +851,25 @@ def get_dashboard_info(party_type, party, loyalty_program=None):
 			info["total_unpaid"] = -1 * info["total_unpaid"]
 
 		company_wise_info.append(info)
+	if len(companies)>1:
+		companies_combined = {"company": "All Companies", "billing_this_year": 0, "total_unpaid": 0, "currency": party_account_currency}
+		for d in company_wise_info:
+			companies_combined["billing_this_year"] += d["billing_this_year"]
+			companies_combined["total_unpaid"] += d["total_unpaid"]
+		company_wise_info.append(companies_combined)
 
 	return company_wise_info
+
+
+
+
+def get_ignored_vouchers():
+	ex_rate_rev_journal_entries = frappe.db.get_all("Journal Entry", filters={"docstatus": 1, "voucher_type": ["in", ["Exchange Rate Revaluation", "Reflection Entry","Depreciation Entry", "Balance Transfer"]]}, pluck="name")
+	ac_transfer_journal_entries = frappe.db.get_all("Account Transfer", filters={"journal_entry": ["!=", ""]}, pluck="journal_entry")
+	reversal_journal_entries = frappe.db.get_all("Journal Entry", filters={"docstatus": 1, "reversal_of": ["in", ac_transfer_journal_entries]}, pluck="name")
+	closing_opening_entries = frappe.db.get_all("Journal Entry", filters={"docstatus": 1, "custom_is_closing": 1}, pluck="name")
+	ignored_journal_entries = ex_rate_rev_journal_entries + ac_transfer_journal_entries + reversal_journal_entries + closing_opening_entries
+	return ignored_journal_entries
 
 
 def get_party_shipping_address(doctype: str, name: str) -> Optional[str]:
