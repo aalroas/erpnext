@@ -850,13 +850,6 @@ def get_dashboard_info(party_type, party, loyalty_program=None):
 
 		company_wise_info.append(info)
 
-	if len(companies) > 1:
-		companies_combined = {"company": "All Companies", "billing_this_year": 0, "total_unpaid": 0, "currency": party_account_currency}
-		for d in company_wise_info:
-			companies_combined["billing_this_year"] += d["billing_this_year"]
-			companies_combined["total_unpaid"] += d["total_unpaid"]
-		company_wise_info.append(companies_combined)
-
 	return company_wise_info
 
 
