@@ -869,11 +869,10 @@ def get_dashboard_info(party_type, party, loyalty_program=None):
 
 
 def get_ignored_vouchers():
-	ex_rate_rev_journal_entries = frappe.db.get_all("Journal Entry", filters={"docstatus": 1, "voucher_type": ["in", ["Exchange Rate Revaluation", "Reflection Entry","Depreciation Entry", "Balance Transfer"]]}, pluck="name")
+	ex_rate_rev_journal_entries = frappe.db.get_all("Journal Entry", filters={"docstatus": 1, "voucher_type": ["in", ["Exchange Rate Revaluation", "Reflection Entry","Depreciation Entry", "Balance Transfer", "Closing Entry"]]}, pluck="name")
 	ac_transfer_journal_entries = frappe.db.get_all("Account Transfer", filters={"journal_entry": ["!=", ""]}, pluck="journal_entry")
 	reversal_journal_entries = frappe.db.get_all("Journal Entry", filters={"docstatus": 1, "reversal_of": ["in", ac_transfer_journal_entries]}, pluck="name")
-	closing_opening_entries = frappe.db.get_all("Journal Entry", filters={"docstatus": 1, "custom_is_closing": 1}, pluck="name")
-	ignored_journal_entries = ex_rate_rev_journal_entries + ac_transfer_journal_entries + reversal_journal_entries + closing_opening_entries
+	ignored_journal_entries = ex_rate_rev_journal_entries + ac_transfer_journal_entries + reversal_journal_entries
 	return ignored_journal_entries
 
 
