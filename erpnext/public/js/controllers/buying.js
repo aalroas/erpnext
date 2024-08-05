@@ -55,50 +55,45 @@ erpnext.buying.BuyingController = class BuyingController extends erpnext.Transac
 
 		if(this.frm.fields_dict.buying_price_list) {
 			this.frm.set_query("buying_price_list", function() {
-				if (cur_frm.ignore_party_based_price_list_validation == undefined){
-					frappe.db.get_single_value("Custom Buying Settings", "ignore_party_based_price_list_validation").then(function(ignore_party_based_price_list_validation) {
-						cur_frm.ignore_party_based_price_list_validation = ignore_party_based_price_list_validation;
-						if (ignore_party_based_price_list_validation == 0 && cur_frm.doctype == "Purchase Order") {
-							return {
-								filters: {
-									'buying': 1,
-									"custom_party_type": ["in", ["Supplier", ""]],
-									"custom_party": cur_frm.doc.supplier,
-									"currency": cur_frm.doc.currency,
-									"custom_is_standard_price_list": 0
-								}
-							}
-						} else {
-							return {
-								filters: {
-									'buying': 1,
-									"currency": cur_frm.doc.currency
-								}
-							}
+				const getFilters = (isInternalSupplier, currency) => {
+					return isInternalSupplier ? { "currency": currency } : { 'buying': 1, "currency": currency };
+				};
+				const getCustomFilters = (isInternalSupplier, supplier, currency) => {
+					return {
+						filters: isInternalSupplier ? {
+							"custom_party_type": ["in", ["Supplier", "Customer"]],
+							"custom_party": supplier,
+							"currency": currency,
+							"custom_is_standard_price_list": 0
+						} : {
+							'buying': 1,
+							"custom_party_type": ["in", ["Supplier", ""]],
+							"custom_party": supplier,
+							"currency": currency,
+							"custom_is_standard_price_list": 0
 						}
-					});
-				}else {
-					if (cur_frm.ignore_party_based_price_list_validation == 0 && cur_frm.doctype == "Purchase Order") {
-						return {
-							filters: {
-								'buying': 1,
-								"custom_party_type": ["in", ["Supplier", ""]],
-								"custom_party": cur_frm.doc.supplier,
-								"currency": cur_frm.doc.currency,
-								"custom_is_standard_price_list": 0
+					};
+				};
+
+				if (cur_frm.ignore_party_based_price_list_validation === undefined) {
+					frappe.db.get_single_value("Custom Buying Settings", "ignore_party_based_price_list_validation")
+						.then(function(ignore_party_based_price_list_validation) {
+							cur_frm.ignore_party_based_price_list_validation = ignore_party_based_price_list_validation;
+							if (ignore_party_based_price_list_validation === 0 && cur_frm.doctype === "Purchase Order") {
+								return getCustomFilters(cur_frm.doc.is_internal_supplier, cur_frm.doc.supplier, cur_frm.doc.currency);
+							} else {
+								return { filters: getFilters(cur_frm.doc.is_internal_supplier, cur_frm.doc.currency) };
 							}
-						}
+						});
+				} else {
+					if (cur_frm.ignore_party_based_price_list_validation === 0 && cur_frm.doctype === "Purchase Order") {
+						return getCustomFilters(cur_frm.doc.is_internal_supplier, cur_frm.doc.supplier, cur_frm.doc.currency);
 					} else {
-						return {
-							filters: {
-								'buying': 1,
-								"currency": cur_frm.doc.currency
-							}
-						}
+						return { filters: getFilters(cur_frm.doc.is_internal_supplier, cur_frm.doc.currency) };
 					}
 				}
-
-			});
+			}
+		);
 		}
 
 		if(this.frm.fields_dict.tc_name) {
