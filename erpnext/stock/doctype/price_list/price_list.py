@@ -33,8 +33,8 @@ class PriceList(Document):
 	def update_item_price(self):
 		frappe.db.sql(
 			"""update `tabItem Price` set currency=%s,
-			buying=%s, selling=%s, modified=NOW() where price_list=%s""",
-			(self.currency, cint(self.buying), cint(self.selling), self.name),
+			buying=%s, selling=%s, modified=NOW(), modified_by=%s where price_list=%s""",
+			(self.currency, cint(self.buying), cint(self.selling), frappe.session.user, self.name),
 		)
 
 	def check_impact_on_shopping_cart(self):
