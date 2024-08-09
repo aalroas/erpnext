@@ -542,12 +542,12 @@ class PaymentReconciliation(Document):
 			condition = " and cost_center = '{0}' ".format(self.cost_center)
 
 		condition += (
-			" and posting_date >= {0}".format(frappe.db.escape(self.from_payment_date))
+			" and posting_date >= {0} ".format(frappe.db.escape(self.from_payment_date))
 			if self.from_payment_date
 			else ""
 		)
 		condition += (
-			" and posting_date <= {0}".format(frappe.db.escape(self.to_payment_date))
+			" and posting_date <= {0} ".format(frappe.db.escape(self.to_payment_date))
 			if self.to_payment_date
 			else ""
 		)
@@ -558,22 +558,22 @@ class PaymentReconciliation(Document):
 			controlled_field = "debit_in_account_currency" if self.party_type in debit_party_type else "credit_in_account_currency"
 		if self.minimum_payment_amount:
 			condition += (
-				" and unallocated_amount >= {0}".format(flt(self.minimum_payment_amount))
+				" and unallocated_amount >= {0} ".format(flt(self.minimum_payment_amount))
 				if get_payments
-				else " and {0} >= {1}".format(controlled_field, flt(self.minimum_payment_amount))
+				else " and {0} >= {1} ".format(controlled_field, flt(self.minimum_payment_amount))
 			)
 		if self.maximum_payment_amount:
 			condition += (
-				" and unallocated_amount <= {0}".format(flt(self.maximum_payment_amount))
+				" and unallocated_amount <= {0} ".format(flt(self.maximum_payment_amount))
 				if get_payments
 				else " and {0} <= {1}".format(controlled_field, flt(self.maximum_payment_amount))
 			)
 
 		if not self.minimum_payment_amount and not self.maximum_payment_amount:
 			condition += (
-					" and unallocated_amount >= 0.0099"
+					" and unallocated_amount >= 0.0099 "
 					if get_payments
-					else " and {controlled_field} >=  0.0099".format(controlled_field=controlled_field)
+					else " and {controlled_field} >=  0.0099 ".format(controlled_field=controlled_field)
 				)
 		return condition
 
