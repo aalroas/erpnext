@@ -1580,8 +1580,8 @@ def create_payment_ledger_entry(
 			if cancel:
 				delink_original_entry(ple)
 
-			if already_exists(entry):
-				continue
+			# if already_exists(entry):
+			# 	continue
 
 			ple.flags.ignore_permissions = 1
 			ple.flags.adv_adj = adv_adj
