@@ -591,3 +591,72 @@ def get_rfq_response_days(scorecard):
 		total_sq_days = 0
 
 	return total_sq_days
+
+def get_all_quality_score(scorecard):
+	if not frappe.db.exists("Supplier Score", scorecard.supplier):
+		frappe.throw(f"Supplier '{scorecard.supplier}' does not exist in Supplier Score List. Please select a created supplier")
+	compliance_score, quality_score, tech_infra_score, financial_score, market_image_score = frappe.db.get_value(
+	    "Supplier Score",
+        scorecard.supplier,
+        ["compliance_of_service", "quality_certificate", 
+         "technological_infrastructure", "financial_capacity", 
+         "market_image"]
+    )
+
+    # Default to 0 if any of the values are None (not entered)
+	compliance_score = compliance_score or 0
+	quality_score = quality_score or 0
+	tech_infra_score = tech_infra_score or 0
+	financial_score = financial_score or 0
+	market_image_score = market_image_score or 0
+	total_score = compliance_score + quality_score + tech_infra_score + financial_score + market_image_score
+
+	return total_score
+
+def get_all_delivery_score(scorecard):
+    on_time_delivery, fast_response, shipping_document, capacity_adequacy = frappe.db.get_value(
+        "Supplier Score",
+        scorecard.supplier,
+        ["on_time_delivery", "fast_response_to_urgent_requests", 
+         "shipping_document", "capacity_adequacy"]
+    )
+
+    on_time_delivery = on_time_delivery or 0
+    fast_response = fast_response or 0
+    shipping_document = shipping_document or 0
+    capacity_adequacy = capacity_adequacy or 0
+    total_score = on_time_delivery + fast_response + shipping_document + capacity_adequacy
+
+    return total_score
+
+def get_all_price_score(scorecard):
+    payment_terms, competitive_pricing, on_time_offer, revised_offer = frappe.db.get_value(
+        "Supplier Score",
+        scorecard.supplier,
+        ["payment_terms", "competitive_pricing", 
+         "on_time_offer", "revised_offer"]
+    )
+
+    payment_terms = payment_terms or 0
+    competitive_pricing = competitive_pricing or 0
+    on_time_offer = on_time_offer or 0
+    revised_offer = revised_offer or 0
+    total_score = payment_terms + competitive_pricing + on_time_offer + revised_offer
+
+    return total_score
+
+def get_all_customer_satisfaction_score(scorecard):
+    num_complaints, approach_complaints, quick_solution, effective_solution = frappe.db.get_value(
+        "Supplier Score",
+        scorecard.supplier,
+        ["number_of_complaints", "approach_to_complaints", 
+         "quick_solution", "effective_solution"]
+    )
+
+    num_complaints = num_complaints or 0
+    approach_complaints = approach_complaints or 0
+    quick_solution = quick_solution or 0
+    effective_solution = effective_solution or 0
+    total_score = num_complaints + approach_complaints + quick_solution + effective_solution
+
+    return total_score
