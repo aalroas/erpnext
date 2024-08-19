@@ -119,7 +119,8 @@ frappe.ui.form.on('Account', {
 						new: data.name,
 						is_group: frm.doc.is_group,
 						root_type: frm.doc.root_type,
-						company: frm.doc.company
+						company: frm.doc.company,
+						account_currency: frm.doc.account_currency
 					},
 					callback: function(r) {
 						if(!r.exc) {

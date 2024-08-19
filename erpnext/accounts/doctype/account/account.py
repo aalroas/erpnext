@@ -444,17 +444,17 @@ def update_account_number(name, account_name, account_number=None, from_descenda
 
 
 @frappe.whitelist()
-def merge_account(old, new, is_group, root_type, company):
+def merge_account(old, new, is_group, root_type, company, account_currency):
 	# Validate properties before merging
 	if not frappe.db.exists("Account", new):
 		throw(_("Account {0} does not exist").format(new))
 
-	val = list(frappe.db.get_value("Account", new, ["is_group", "root_type", "company"]))
+	val = list(frappe.db.get_value("Account", new, ["is_group", "root_type", "company", "account_currency"]))
 
-	if val != [cint(is_group), root_type, company]:
+	if val != [cint(is_group), root_type, company, account_currency]:
 		throw(
 			_(
-				"""Merging is only possible if following properties are same in both records. Is Group, Root Type, Company"""
+				"""Merging is only possible if following properties are same in both records. Is Group, Root Type, Company, Account Currency"""
 			)
 		)
 
