@@ -92,6 +92,7 @@ class MaterialRequest(BuyingController):
 				"Issued",
 				"Transferred",
 				"Received",
+				"Approval pending by Manager",
 			],
 		)
 
