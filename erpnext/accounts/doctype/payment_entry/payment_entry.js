@@ -46,7 +46,9 @@ frappe.ui.form.on('Payment Entry', {
 				filters: {
 					is_company_account: 0,
 					party_type: frm.doc.party_type,
-					party: frm.doc.party
+					party: frm.doc.party,
+					currency: frm.doc.paid_to_account_currency,
+					account_type: frm.doc.paid_to_account_currency
 				}
 			}
 		});
