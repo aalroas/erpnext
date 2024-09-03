@@ -523,7 +523,7 @@ def get_accounting_entries(
 		query = query.where(gl_entry.posting_date <= to_date)
 
 		if filters.get("ignore_exchange_entries"):
-			exchange_gain_or_loss_and_payment_entries_list = ignore_inter_company_payments(filters)
+			exchange_gain_or_loss_and_payment_entries_list = ignore_exchange_entries(filters)
 			if exchange_gain_or_loss_and_payment_entries_list:
 				query = query.where(gl_entry.voucher_no.notin(exchange_gain_or_loss_and_payment_entries_list))
 
@@ -541,19 +541,13 @@ def get_accounting_entries(
 
 	return entries
 
-def ignore_inter_company_payments(filters):
-    inter_company_payments_names = frappe.db.get_all("Inter Company Payment", pluck="inter_payment_entry")
-    exchange_gain_or_loss_and_payment_entries = frappe.db.sql(
-		"""
-			select gl.voucher_no from `tabGL Entry` gl
-			where (gl.against_voucher  in {inter_company_payments_names} or gl.voucher_no in {inter_company_payments_names})
-			and gl.company = '{company}'
-			and is_cancelled = 0
-			and posting_date between '{from_date}' and '{to_date}'
-			group by gl.voucher_no
-		""".format(company=filters.company, from_date=filters.from_date, to_date=filters.to_date, inter_company_payments_names=format_list(inter_company_payments_names))
-		, as_dict=True)
-    exchange_gain_or_loss_and_payment_entries_list = [item.get('voucher_no') for item in exchange_gain_or_loss_and_payment_entries]
+def ignore_exchange_entries(filters):
+    exchange_gain_or_loss_and_payment_entries_list = frappe.db.get_all("Journal Entry",
+                                                                       filters={
+                                                                           "voucher_type": "Exchange Gain Or Loss",
+                                                                           "posting_date": ["between", (filters.from_date, filters.to_date)],
+                                                                           "company": filters.company,
+                                                                           }, pluck="name")
     return exchange_gain_or_loss_and_payment_entries_list
 
 def apply_additional_conditions(doctype, query, from_date, ignore_closing_entries, filters):
