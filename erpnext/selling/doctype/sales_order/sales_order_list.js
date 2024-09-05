@@ -59,6 +59,13 @@ frappe.listview_settings['Sales Order'] = {
 		listview.page.add_action_item(__("Advance Payment"), ()=>{
 			erpnext.bulk_transaction_processing.create(listview, "Sales Order", "Payment Entry");
 		});
-
+		listview.get_args = function () {  // Override only instance method
+            let args = frappe.views.ListView.prototype.get_args.call(listview);  // Calling his super
+            var hasSalesUserForeign = frappe.user.has_role("Sales User (Foreign)");
+            if(hasSalesUserForeign && frappe.session.user != "Administrator"){ 
+                args.filters.push(["Sales Order","is_dealer_sales_order","=","0"]);
+            }
+            return args
+        }
 	}
 };
