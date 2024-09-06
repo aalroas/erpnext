@@ -14,7 +14,7 @@ import erpnext
 from erpnext.accounts.doctype.journal_entry.journal_entry import get_balance_on
 from erpnext.accounts.utils import get_currency_precision
 from erpnext.setup.utils import get_exchange_rate
-
+from ekin_erp.ekin_erp.overrides.custom_party import get_party_type_and_party
 
 class ExchangeRateRevaluation(Document):
 	def validate(self):
@@ -118,6 +118,19 @@ class ExchangeRateRevaluation(Document):
 
 		if not accounts_with_new_balance:
 			self.throw_invalid_response_message(account_details)
+		accounts_with_new_balance = self.set_party_type_and_party(accounts_with_new_balance)
+		return accounts_with_new_balance
+
+	def set_party_type_and_party(self, accounts_with_new_balance):
+
+		for acc in accounts_with_new_balance:
+			party_type , party = get_party_type_and_party(acc["account"], self.company)
+			acc.update(
+				{
+					"party_type": party_type,
+					"party": party,
+				}
+			)
 
 		return accounts_with_new_balance
 
@@ -355,7 +368,7 @@ class ExchangeRateRevaluation(Document):
 
 		journal_entry_accounts = []
 		for d in accounts:
-			unrealized_exchange_gain_loss_account = custom_exchange_gain_account if d.gain_loss < 0 else custom_exchange_loss_account
+			unrealized_exchange_gain_loss_account = custom_exchange_loss_account if d.gain_loss < 0 else custom_exchange_gain_account
 			journal_account = frappe._dict(
 				{
 					"account": d.get("account"),
@@ -524,7 +537,7 @@ class ExchangeRateRevaluation(Document):
 		journal_entry.set_total_debit_credit()
 
 		self.gain_loss_unbooked += journal_entry.difference - self.gain_loss_unbooked
-		unrealized_exchange_gain_loss_account = custom_exchange_gain_account if self.gain_loss_unbooked < 0 else custom_exchange_loss_account
+		unrealized_exchange_gain_loss_account = custom_exchange_loss_account if self.gain_loss_unbooked < 0 else custom_exchange_gain_account
 		journal_entry.append(
 			"accounts",
 			{
@@ -602,6 +615,7 @@ def get_account_details(
 	account_currency, account_type = frappe.get_cached_value(
 		"Account", account, ["account_currency", "account_type"]
 	)
+	party_type , party = get_party_type_and_party(account, company)
 
 	if account_type in ["Receivable", "Payable"] and not (party_type and party):
 		frappe.throw(_("Party Type and Party is mandatory for {0} account").format(account_type))
@@ -640,6 +654,8 @@ def get_account_details(
 				"new_balance_in_account_currency": row["new_balance_in_account_currency"],
 				"zero_balance": row["zero_balance"],
 				"gain_loss": row["gain_loss"],
+				"party_type": party_type,
+				"party": party,
 			}
 		)
 
