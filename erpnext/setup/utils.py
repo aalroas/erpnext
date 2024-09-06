@@ -55,11 +55,11 @@ def get_exchange_rate(from_currency, to_currency, transaction_date=None, args=No
 
 	if not transaction_date:
 		transaction_date = nowdate()
-	currency_settings = frappe.get_doc("Accounts Settings").as_dict()
-	allow_stale_rates = currency_settings.get("allow_stale")
+	# currency_settings = frappe.get_doc("Accounts Settings").as_dict()
+	# allow_stale_rates = currency_settings.get("allow_stale")
 
 	filters = [
-		["date", "<=", get_datetime_str(transaction_date)],
+		["date", "=", get_datetime_str(transaction_date)],
 		["from_currency", "=", from_currency],
 		["to_currency", "=", to_currency],
 	]
@@ -69,51 +69,27 @@ def get_exchange_rate(from_currency, to_currency, transaction_date=None, args=No
 	elif args == "for_selling":
 		filters.append(["for_selling", "=", "1"])
 
-	if not allow_stale_rates:
-		stale_days = currency_settings.get("stale_days")
-		checkpoint_date = add_days(transaction_date, -stale_days)
-		filters.append(["date", ">", get_datetime_str(checkpoint_date)])
+	# if not allow_stale_rates:
+	# 	stale_days = currency_settings.get("stale_days")
+	# 	checkpoint_date = add_days(transaction_date, -stale_days)
+	# 	filters.remove(["date", "<=", get_datetime_str(transaction_date)])
+	# 	filters.append(["date", ">", get_datetime_str(checkpoint_date)])
 
-	# cksgb 19/09/2016: get last entry in Currency Exchange with from_currency and to_currency.
 	entries = frappe.get_all(
 		"Currency Exchange", fields=["exchange_rate"], filters=filters, order_by="date desc", limit=1
 	)
 	if entries:
 		return flt(entries[0].exchange_rate)
-
-	try:
-		cache = frappe.cache()
-		key = "currency_exchange_rate_{0}:{1}:{2}".format(transaction_date, from_currency, to_currency)
-		value = cache.get(key)
-
-		if not value:
-			import requests
-
-			settings = frappe.get_cached_doc("Currency Exchange Settings")
-			req_params = {
-				"transaction_date": transaction_date,
-				"from_currency": from_currency,
-				"to_currency": to_currency,
-			}
-			params = {}
-			for row in settings.req_params:
-				params[row.key] = format_ces_api(row.value, req_params)
-			response = requests.get(format_ces_api(settings.api_endpoint, req_params), params=params)
-			# expire in 6 hours
-			response.raise_for_status()
-			value = response.json()
-			for res_key in settings.result_key:
-				value = value[format_ces_api(str(res_key.key), req_params)]
-			cache.setex(name=key, time=21600, value=flt(value))
-		return flt(value)
-	except Exception:
-		frappe.log_error("Unable to fetch exchange rate")
-		frappe.msgprint(
-			_(
-				"Unable to find exchange rate for {0} to {1} for key date {2}. Please create a Currency Exchange record manually"
-			).format(from_currency, to_currency, transaction_date)
+	else:
+		import ekin_erp.ekin_erp.doctype.tcmb_evds_setting.api as api
+		api.initiate_currency_exchange_rates()
+		entries = frappe.get_all(
+			"Currency Exchange", fields=["exchange_rate"], filters=filters, order_by="date desc", limit=1
 		)
-		return 0.0
+		if entries:
+			return flt(entries[0].exchange_rate)
+		else:
+			frappe.throw(_("No currency exchange rate found for {0} on {1}").format(from_currency, transaction_date))
 
 
 def format_ces_api(data, param):

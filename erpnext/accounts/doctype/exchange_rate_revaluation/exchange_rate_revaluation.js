@@ -131,6 +131,8 @@ frappe.ui.form.on("Exchange Rate Revaluation Account", {
 
 var get_account_details = function(frm, cdt, cdn) {
 	var row = frappe.get_doc(cdt, cdn);
+	var custom_from_date = frm.doc.custom_from_date;
+	var custom_to_date = frm.doc.custom_to_date;
 	if(!frm.doc.company || !frm.doc.posting_date) {
 		frappe.throw(__("Please select Company and Posting Date to getting entries"));
 	}
@@ -140,9 +142,11 @@ var get_account_details = function(frm, cdt, cdn) {
 			account: row.account,
 			company: frm.doc.company,
 			posting_date: frm.doc.posting_date,
+			custom_from_date: custom_from_date,
+			custom_to_date: custom_to_date,
 			party_type: row.party_type,
 			party: row.party,
-			rounding_loss_allowance: frm.doc.rounding_loss_allowance
+			rounding_loss_allowance: frm.doc.rounding_loss_allowance,
 		},
 		callback: function(r){
 			$.extend(row, r.message);

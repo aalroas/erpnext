@@ -49,15 +49,15 @@ class ExchangeRateRevaluation(Document):
 		self.total_gain_loss = flt(total_gain_loss, self.precision("total_gain_loss"))
 
 	def validate_mandatory(self):
-		if not (self.company and self.posting_date):
-			frappe.throw(_("Please select Company and Posting Date to getting entries"))
+		if not (self.company and self.posting_date and self.custom_from_date and self.custom_to_date):
+			frappe.throw(_("Please select Company, Posting Date, From Date and To Date to getting entries"))
 
 	def on_cancel(self):
 		self.ignore_linked_doctypes = "GL Entry"
 
 	@frappe.whitelist()
 	def check_journal_entry_condition(self):
-		exchange_gain_loss_account = self.get_for_unrealized_gain_loss_account()
+		custom_exchange_gain_account, custom_exchange_loss_account = self.get_for_unrealized_gain_loss_account()
 
 		jea = qb.DocType("Journal Entry Account")
 		journals = (
@@ -80,7 +80,7 @@ class ExchangeRateRevaluation(Document):
 				.where(
 					(gle.voucher_type == "Journal Entry")
 					& (gle.voucher_no.isin(journals))
-					& (gle.account == exchange_gain_loss_account)
+					& (gle.account.isin([custom_exchange_gain_account, custom_exchange_loss_account]))
 					& (gle.is_cancelled == 0)
 				)
 				.run()
@@ -105,13 +105,15 @@ class ExchangeRateRevaluation(Document):
 		account_details = self.get_account_balance_from_gle(
 			company=self.company,
 			posting_date=self.posting_date,
+			custom_from_date=self.custom_from_date,
+			custom_to_date=self.custom_to_date,
 			account=None,
 			party_type=None,
 			party=None,
 			rounding_loss_allowance=self.rounding_loss_allowance,
 		)
 		accounts_with_new_balance = self.calculate_new_account_balance(
-			self.company, self.posting_date, account_details
+			self.company, self.posting_date, self.custom_from_date, self.custom_to_date, account_details
 		)
 
 		if not accounts_with_new_balance:
@@ -121,11 +123,11 @@ class ExchangeRateRevaluation(Document):
 
 	@staticmethod
 	def get_account_balance_from_gle(
-		company, posting_date, account, party_type, party, rounding_loss_allowance
+		company, posting_date, custom_from_date, custom_to_date, account, party_type, party, rounding_loss_allowance
 	):
 		account_details = []
 
-		if company and posting_date:
+		if company and posting_date and custom_from_date and custom_to_date:
 			company_currency = erpnext.get_company_currency(company)
 
 			acc = qb.DocType("Account")
@@ -142,6 +144,7 @@ class ExchangeRateRevaluation(Document):
 						& (acc.account_type != "Stock")
 						& (acc.company == company)
 						& (acc.account_currency != company_currency)
+						& (acc.custom_ignore_in_exchange_rate_revaluation == 0)
 					)
 					.orderby(acc.name)
 					.run(as_list=True)
@@ -158,8 +161,9 @@ class ExchangeRateRevaluation(Document):
 				# conditions
 				conditions = []
 				conditions.append(gle.account.isin(accounts))
-				conditions.append(gle.posting_date.lte(posting_date))
+				# conditions.append(gle.posting_date.lte(posting_date))
 				conditions.append(gle.is_cancelled == 0)
+				conditions.append(gle.posting_date.between(custom_from_date, custom_to_date))
 
 				if party_type:
 					conditions.append(gle.party_type == party_type)
@@ -209,13 +213,14 @@ class ExchangeRateRevaluation(Document):
 		return account_details
 
 	@staticmethod
-	def calculate_new_account_balance(company, posting_date, account_details):
+	def calculate_new_account_balance(company, posting_date, custom_from_date, custom_to_date, account_details):
 		accounts = []
 		company_currency = erpnext.get_company_currency(company)
-		precision = get_field_precision(
-			frappe.get_meta("Exchange Rate Revaluation Account").get_field("new_balance_in_base_currency"),
-			company_currency,
-		)
+		# precision = get_field_precision(
+		# 	frappe.get_meta("Exchange Rate Revaluation Account").get_field("new_balance_in_base_currency"),
+		# 	company_currency,
+		# )
+		precision = get_currency_precision(company_currency) or 4
 
 		if account_details:
 			# Handle Accounts with balance in both Account/Base Currency
@@ -259,7 +264,7 @@ class ExchangeRateRevaluation(Document):
 					new_balance_in_account_currency = 0
 
 					current_exchange_rate = (
-						calculate_exchange_rate_using_last_gle(company, d.account, d.party_type, d.party) or 0.0
+						calculate_exchange_rate_using_last_gle(company, custom_from_date, custom_to_date, d.account, d.party_type, d.party) or 0.0
 					)
 
 					gain_loss = new_balance_in_account_currency - (
@@ -293,15 +298,24 @@ class ExchangeRateRevaluation(Document):
 			message = _("No outstanding invoices found")
 		frappe.msgprint(message)
 
+	# def get_for_unrealized_gain_loss_account(self):
+	# 	unrealized_exchange_gain_loss_account = frappe.get_cached_value(
+	# 		"Company", self.company, "unrealized_exchange_gain_loss_account"
+	# 	)
+	# 	if not unrealized_exchange_gain_loss_account:
+	# 		frappe.throw(
+	# 			_("Please set Unrealized Exchange Gain/Loss Account in Company {0}").format(self.company)
+	# 		)
+	# 	return unrealized_exchange_gain_loss_account
+
 	def get_for_unrealized_gain_loss_account(self):
-		unrealized_exchange_gain_loss_account = frappe.get_cached_value(
-			"Company", self.company, "unrealized_exchange_gain_loss_account"
-		)
-		if not unrealized_exchange_gain_loss_account:
+		custom_exchange_gain_account  = frappe.db.get_value("Company", self.company, "custom_exchange_gain_account")
+		custom_exchange_loss_account = frappe.db.get_value("Company", self.company, "custom_exchange_loss_account")
+		if not custom_exchange_gain_account or not custom_exchange_loss_account:
 			frappe.throw(
-				_("Please set Unrealized Exchange Gain/Loss Account in Company {0}").format(self.company)
+				_("Please set Custom Exchange Gain Account and Custom Exchange Loss Account in Company")
 			)
-		return unrealized_exchange_gain_loss_account
+		return custom_exchange_gain_account, custom_exchange_loss_account
 
 	@frappe.whitelist()
 	def make_jv_entries(self):
@@ -330,8 +344,8 @@ class ExchangeRateRevaluation(Document):
 
 		if not accounts:
 			return
-
-		unrealized_exchange_gain_loss_account = self.get_for_unrealized_gain_loss_account()
+		# unrealized_exchange_gain_loss_account = self.get_for_unrealized_gain_loss_account()
+		custom_exchange_gain_account , custom_exchange_loss_account = self.get_for_unrealized_gain_loss_account()
 
 		journal_entry = frappe.new_doc("Journal Entry")
 		journal_entry.voucher_type = "Exchange Gain Or Loss"
@@ -341,6 +355,7 @@ class ExchangeRateRevaluation(Document):
 
 		journal_entry_accounts = []
 		for d in accounts:
+			unrealized_exchange_gain_loss_account = custom_exchange_gain_account if d.gain_loss < 0 else custom_exchange_loss_account
 			journal_account = frappe._dict(
 				{
 					"account": d.get("account"),
@@ -442,8 +457,8 @@ class ExchangeRateRevaluation(Document):
 		if not accounts:
 			return
 
-		unrealized_exchange_gain_loss_account = self.get_for_unrealized_gain_loss_account()
-
+		# unrealized_exchange_gain_loss_account = self.get_for_unrealized_gain_loss_account()
+		custom_exchange_gain_account , custom_exchange_loss_account = self.get_for_unrealized_gain_loss_account()
 		journal_entry = frappe.new_doc("Journal Entry")
 		journal_entry.voucher_type = "Exchange Rate Revaluation"
 		journal_entry.company = self.company
@@ -509,6 +524,7 @@ class ExchangeRateRevaluation(Document):
 		journal_entry.set_total_debit_credit()
 
 		self.gain_loss_unbooked += journal_entry.difference - self.gain_loss_unbooked
+		unrealized_exchange_gain_loss_account = custom_exchange_gain_account if self.gain_loss_unbooked < 0 else custom_exchange_loss_account
 		journal_entry.append(
 			"accounts",
 			{
@@ -531,12 +547,12 @@ class ExchangeRateRevaluation(Document):
 		return journal_entry
 
 
-def calculate_exchange_rate_using_last_gle(company, account, party_type, party):
+def calculate_exchange_rate_using_last_gle(company, custom_from_date, custom_to_date, account, party_type, party):
 	"""
 	Use last GL entry to calculate exchange rate
 	"""
 	last_exchange_rate = None
-	if company and account:
+	if company and account and custom_from_date and custom_to_date:
 		gl = qb.DocType("GL Entry")
 
 		# build conditions
@@ -546,6 +562,8 @@ def calculate_exchange_rate_using_last_gle(company, account, party_type, party):
 		conditions.append(gl.is_cancelled == 0)
 		conditions.append((gl.debit > 0) | (gl.credit > 0))
 		conditions.append((gl.debit_in_account_currency > 0) | (gl.credit_in_account_currency > 0))
+		conditions.append(gl.posting_date.between(custom_from_date, custom_to_date))
+
 		if party_type:
 			conditions.append(gl.party_type == party_type)
 		if party:
@@ -576,10 +594,10 @@ def calculate_exchange_rate_using_last_gle(company, account, party_type, party):
 
 @frappe.whitelist()
 def get_account_details(
-	company, posting_date, account, party_type=None, party=None, rounding_loss_allowance: float = None
+	company, posting_date, custom_from_date, custom_to_date, account, party_type=None, party=None, rounding_loss_allowance: float = None
 ):
-	if not (company and posting_date):
-		frappe.throw(_("Company and Posting Date is mandatory"))
+	if not (company and posting_date and custom_from_date and custom_to_date):
+		frappe.throw(_("Company, Posting Date, From Date and To Date is mandatory"))
 
 	account_currency, account_type = frappe.get_cached_value(
 		"Account", account, ["account_currency", "account_type"]
@@ -597,6 +615,8 @@ def get_account_details(
 	account_balance = ExchangeRateRevaluation.get_account_balance_from_gle(
 		company=company,
 		posting_date=posting_date,
+		custom_from_date=custom_from_date,
+		custom_to_date=custom_to_date,
 		account=account,
 		party_type=party_type,
 		party=party,
@@ -607,7 +627,7 @@ def get_account_details(
 		account_balance[0].balance or account_balance[0].balance_in_account_currency
 	):
 		account_with_new_balance = ExchangeRateRevaluation.calculate_new_account_balance(
-			company, posting_date, account_balance
+			company, posting_date, custom_from_date, custom_to_date, account_balance
 		)
 		row = account_with_new_balance[0]
 		account_details.update(

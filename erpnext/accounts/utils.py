@@ -817,13 +817,17 @@ def fix_total_debit_credit():
 			)
 
 
-def get_currency_precision():
-	precision = cint(frappe.db.get_default("currency_precision"))
-	if not precision:
-		number_format = frappe.db.get_default("number_format") or "#,###.##"
-		precision = get_number_format_info(number_format)[2]
 
-	return precision
+@frappe.whitelist()
+def get_currency_precision(currency=None):
+	custom_precision = None
+	if currency:
+		custom_precision = frappe.db.sql("""select custom_precision from `tabCurrency` where name=%s""", currency, as_dict=1)
+	currency_precision = cint(frappe.db.get_default("currency_precision")) or 4
+
+	if custom_precision:
+		return cint(custom_precision)
+	return currency_precision
 
 
 def get_stock_rbnb_difference(posting_date, company):
@@ -1572,7 +1576,7 @@ def create_payment_ledger_entry(
 
 			if entry.voucher_type == "Journal Entry":
 				voucher_type = frappe.db.get_value("Journal Entry", entry.voucher_no, "voucher_type")
-				if voucher_type in ["Reflection Entry", "Balance Transfer", "Closing Entry"]:
+				if voucher_type in ["Reflection Entry", "Balance Transfer", "Closing Entry"]: #, "Exchange Rate Revaluation"]
 					continue
 
 			ple = frappe.get_doc(entry)
@@ -1590,18 +1594,18 @@ def create_payment_ledger_entry(
 			ple.submit()
 
 
-def already_exists(entry):
-    return frappe.db.exists("Payment Ledger Entry",{
-		"voucher_no": entry.voucher_no,
-		"account": entry.account,
-		"party_type": entry.party_type,
-		"party": entry.party,
-		"against_voucher_type": entry.against_voucher_type,
-		"against_voucher_no": entry.against_voucher_no,
-		"amount": entry.amount,
-		"amount_in_account_currency": entry.amount_in_account_currency,
-		"delinked": entry.delinked
-	})
+# def already_exists(entry):
+#     return frappe.db.exists("Payment Ledger Entry",{
+# 		"voucher_no": entry.voucher_no,
+# 		"account": entry.account,
+# 		"party_type": entry.party_type,
+# 		"party": entry.party,
+# 		"against_voucher_type": entry.against_voucher_type,
+# 		"against_voucher_no": entry.against_voucher_no,
+# 		"amount": entry.amount,
+# 		"amount_in_account_currency": entry.amount_in_account_currency,
+# 		"delinked": entry.delinked
+# 	})
 
 def update_voucher_outstanding(voucher_type, voucher_no, account, party_type, party):
 	ple = frappe.qb.DocType("Payment Ledger Entry")
