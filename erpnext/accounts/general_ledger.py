@@ -33,6 +33,7 @@ def make_gl_entries(
 			validate_disabled_accounts(gl_map)
 			gl_map = process_gl_map(gl_map, merge_entries)
 			if gl_map and len(gl_map) > 1:
+				save_entries(gl_map, adv_adj, update_outstanding, from_repost)
 				create_payment_ledger_entry(
 					gl_map,
 					cancel=0,
@@ -40,7 +41,6 @@ def make_gl_entries(
 					update_outstanding=update_outstanding,
 					from_repost=from_repost,
 				)
-				save_entries(gl_map, adv_adj, update_outstanding, from_repost)
 			# Post GL Map proccess there may no be any GL Entries
 			elif gl_map:
 				frappe.throw(
