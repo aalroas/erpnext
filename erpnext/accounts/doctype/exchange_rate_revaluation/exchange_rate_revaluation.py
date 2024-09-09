@@ -532,32 +532,48 @@ class ExchangeRateRevaluation(Document):
 				}
 			)
 
+			unrealized_exchange_gain_loss_account = custom_exchange_loss_account if d.gain_loss < 0 else custom_exchange_gain_account
+			journal_entry_accounts.append(
+				{
+					"account": unrealized_exchange_gain_loss_account,
+					"debit_in_account_currency": abs(d.gain_loss) if d.gain_loss < 0 else 0,
+					"credit_in_account_currency": d.gain_loss if d.gain_loss > 0 else 0,
+					"cost_center": erpnext.get_default_cost_center(self.company),
+					"reference_type": "Exchange Rate Revaluation",
+					"reference_name": self.name,
+				}
+			)
+
+
 		journal_entry.set("accounts", journal_entry_accounts)
 		journal_entry.set_amounts_in_company_currency()
 		journal_entry.set_total_debit_credit()
 
-		self.gain_loss_unbooked += journal_entry.difference - self.gain_loss_unbooked
-		unrealized_exchange_gain_loss_account = custom_exchange_loss_account if self.gain_loss_unbooked < 0 else custom_exchange_gain_account
-		journal_entry.append(
-			"accounts",
-			{
-				"account": unrealized_exchange_gain_loss_account,
-				"balance": get_balance_on(unrealized_exchange_gain_loss_account),
-				"debit_in_account_currency": abs(self.gain_loss_unbooked)
-				if self.gain_loss_unbooked < 0
-				else 0,
-				"credit_in_account_currency": self.gain_loss_unbooked if self.gain_loss_unbooked > 0 else 0,
-				"cost_center": erpnext.get_default_cost_center(self.company),
-				"exchange_rate": 1,
-				"reference_type": "Exchange Rate Revaluation",
-				"reference_name": self.name,
-			},
-		)
+		gain_loss_unbooked = journal_entry.difference - self.gain_loss_unbooked
+		if gain_loss_unbooked:
+			# frappe.throw("Difference in Debit and Credit is not equal to Gain Loss Unbooked Please Contact Administrator")
+			unrealized_exchange_gain_loss_account = custom_exchange_loss_account if gain_loss_unbooked < 0 else custom_exchange_gain_account
+			journal_entry.append(
+				"accounts",
+				{
+					"account": unrealized_exchange_gain_loss_account,
+					"balance": get_balance_on(unrealized_exchange_gain_loss_account),
+					"debit_in_account_currency": abs(gain_loss_unbooked)
+					if gain_loss_unbooked < 0
+					else 0,
+					"credit_in_account_currency": gain_loss_unbooked if gain_loss_unbooked > 0 else 0,
+					"cost_center": erpnext.get_default_cost_center(self.company),
+					"exchange_rate": 1,
+					"reference_type": "Exchange Rate Revaluation",
+					"reference_name": self.name,
+				},
+			)
 
 		journal_entry.set_amounts_in_company_currency()
 		journal_entry.set_total_debit_credit()
 		journal_entry.save()
 		return journal_entry
+
 
 
 def calculate_exchange_rate_using_last_gle(company, custom_from_date, custom_to_date, account, party_type, party):
