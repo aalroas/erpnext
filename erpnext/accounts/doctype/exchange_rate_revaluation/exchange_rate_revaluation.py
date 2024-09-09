@@ -391,6 +391,7 @@ class ExchangeRateRevaluation(Document):
 		journal_entry.company = self.company
 		journal_entry.posting_date = self.posting_date
 		journal_entry.multi_currency = 1
+		journal_entry.title = "{0} - {1} Zero Balance Journal Entry".format(self.posting_date, self.name)
 
 		journal_entry_accounts = []
 		for d in accounts:
@@ -503,7 +504,7 @@ class ExchangeRateRevaluation(Document):
 		journal_entry.company = self.company
 		journal_entry.posting_date = self.posting_date
 		journal_entry.multi_currency = 1
-
+		journal_entry.title = "{0} - {1} Exchange Rate Revaluation".format(self.posting_date, self.name)
 		journal_entry_accounts = []
 		for d in accounts:
 			if not flt(d.get("balance_in_account_currency"), d.precision("balance_in_account_currency")):
