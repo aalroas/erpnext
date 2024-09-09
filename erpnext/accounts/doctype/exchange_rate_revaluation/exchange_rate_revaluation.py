@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 
+import json
 import frappe
 from frappe import _, qb
 from frappe.model.document import Document
@@ -51,9 +52,32 @@ class ExchangeRateRevaluation(Document):
 	def validate_mandatory(self):
 		if not (self.company and self.posting_date and self.custom_from_date and self.custom_to_date):
 			frappe.throw(_("Please select Company, Posting Date, From Date and To Date to getting entries"))
+		currency_exchange_rates = self.custom_currency_exchange_rates
+		for cer in currency_exchange_rates:
+			if not cer.get('exchange_rate'):
+				frappe.throw(_("Please enter Exchange Rate for {0}").format(cer.get('from_currency')))
 
 	def on_cancel(self):
 		self.ignore_linked_doctypes = "GL Entry"
+
+	@frappe.whitelist()
+	def currency_exchange_rates(self):
+		enabled_currencies = frappe.get_all("Currency", filters={"enabled": 1}, pluck="name")
+		company_currency = erpnext.get_company_currency(self.company)
+		currency_exchange_rates = []
+		for currency in enabled_currencies:
+			if currency != company_currency:
+				currency_exchange_rates.append(
+					{
+						"posting_date": self.posting_date,
+						"from_currency": currency,
+						"to_currency": company_currency,
+						"exchange_rate": 0,
+					},
+				)
+
+		return currency_exchange_rates
+
 
 	@frappe.whitelist()
 	def check_journal_entry_condition(self):
@@ -112,8 +136,9 @@ class ExchangeRateRevaluation(Document):
 			party=None,
 			rounding_loss_allowance=self.rounding_loss_allowance,
 		)
+		currency_exchange_rates = self.custom_currency_exchange_rates
 		accounts_with_new_balance = self.calculate_new_account_balance(
-			self.company, self.posting_date, self.custom_from_date, self.custom_to_date, account_details
+			self.company, self.posting_date, self.custom_from_date, self.custom_to_date, account_details, currency_exchange_rates
 		)
 
 		if not accounts_with_new_balance:
@@ -226,9 +251,10 @@ class ExchangeRateRevaluation(Document):
 		return account_details
 
 	@staticmethod
-	def calculate_new_account_balance(company, posting_date, custom_from_date, custom_to_date, account_details):
+	def calculate_new_account_balance(company, posting_date, custom_from_date, custom_to_date, account_details, currency_exchange_rates):
 		accounts = []
 		company_currency = erpnext.get_company_currency(company)
+		exchange_rates = {cer.get('from_currency'): cer.get('exchange_rate') for cer in currency_exchange_rates}
 		# precision = get_field_precision(
 		# 	frappe.get_meta("Exchange Rate Revaluation Account").get_field("new_balance_in_base_currency"),
 		# 	company_currency,
@@ -241,7 +267,7 @@ class ExchangeRateRevaluation(Document):
 				current_exchange_rate = (
 					d.balance / d.balance_in_account_currency if d.balance_in_account_currency else 0
 				)
-				new_exchange_rate = get_exchange_rate(d.account_currency, company_currency, posting_date)
+				new_exchange_rate = exchange_rates.get(d.account_currency) or 0
 				new_balance_in_base_currency = flt(d.balance_in_account_currency * new_exchange_rate)
 				gain_loss = flt(new_balance_in_base_currency, precision) - flt(d.balance, precision)
 				if gain_loss:
@@ -623,10 +649,15 @@ def calculate_exchange_rate_using_last_gle(company, custom_from_date, custom_to_
 
 @frappe.whitelist()
 def get_account_details(
-	company, posting_date, custom_from_date, custom_to_date, account, party_type=None, party=None, rounding_loss_allowance: float = None
+	account, company, posting_date, custom_from_date, custom_to_date, currency_exchange_rates, party_type=None, party=None, rounding_loss_allowance: float = None
 ):
 	if not (company and posting_date and custom_from_date and custom_to_date):
 		frappe.throw(_("Company, Posting Date, From Date and To Date is mandatory"))
+
+	currency_exchange_rates = json.loads(currency_exchange_rates)
+	for cer in currency_exchange_rates:
+		if not cer.get("exchange_rate"):
+			frappe.throw(_("Please enter Exchange Rate for {0}").format(cer.get("from_currency")))
 
 	account_currency, account_type = frappe.get_cached_value(
 		"Account", account, ["account_currency", "account_type"]
@@ -657,7 +688,7 @@ def get_account_details(
 		account_balance[0].balance or account_balance[0].balance_in_account_currency
 	):
 		account_with_new_balance = ExchangeRateRevaluation.calculate_new_account_balance(
-			company, posting_date, custom_from_date, custom_to_date, account_balance
+			company, posting_date, custom_from_date, custom_to_date, account_balance, currency_exchange_rates
 		)
 		row = account_with_new_balance[0]
 		account_details.update(

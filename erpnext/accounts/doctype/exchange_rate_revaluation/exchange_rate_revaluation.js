@@ -97,7 +97,23 @@ frappe.ui.form.on('Exchange Rate Revaluation', {
 				}
 			}
 		});
-	}
+	},
+
+	posting_date: function(frm) {
+		frappe.call({
+			method: "currency_exchange_rates",
+			doc: cur_frm.doc,
+			callback: function(r){
+				frappe.model.clear_table(frm.doc, "custom_currency_exchange_rates");
+				if(r.message) {
+					r.message.forEach((d) => {
+						cur_frm.add_child("custom_currency_exchange_rates",d);
+					});
+					refresh_field("custom_currency_exchange_rates");
+				}
+			}
+		});
+	},
 });
 
 frappe.ui.form.on("Exchange Rate Revaluation Account", {
@@ -144,6 +160,7 @@ var get_account_details = function(frm, cdt, cdn) {
 			posting_date: frm.doc.posting_date,
 			custom_from_date: custom_from_date,
 			custom_to_date: custom_to_date,
+			currency_exchange_rates: frm.doc.custom_currency_exchange_rates,
 			party_type: row.party_type,
 			party: row.party,
 			rounding_loss_allowance: frm.doc.rounding_loss_allowance,
