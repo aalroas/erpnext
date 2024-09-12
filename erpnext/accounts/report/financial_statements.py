@@ -597,6 +597,21 @@ def apply_additional_conditions(doctype, query, from_date, ignore_closing_entrie
 				| (gl_entry.finance_book.isnull())
 			)
 
+		if filters.get('show_consolidated') == "Yes":
+			reversal_balance_transfer = frappe.db.get_list("Journal Entry", {
+				"voucher_type": "Balance Transfer",
+				"company": filters.company,
+				"reversal_of": ["!=", ""],
+			}, pluck="name")
+			query = query.where(gl_entry.voucher_no.notin(reversal_balance_transfer))
+
+		elif filters.get('show_consolidated') == "No":
+			balance_transfer = frappe.db.get_list("Journal Entry", {
+				"voucher_type": "Balance Transfer",
+				"company": filters.company,
+			}, pluck="name")
+			query = query.where(gl_entry.voucher_no.notin(balance_transfer))
+
 	if accounting_dimensions:
 		for dimension in accounting_dimensions:
 			if filters.get(dimension.fieldname):
