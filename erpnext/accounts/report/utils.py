@@ -78,7 +78,7 @@ def get_rate_as_at(date, from_currency, to_currency):
 	return rate
 
 
-def convert_to_presentation_currency(gl_entries, currency_info):
+def convert_to_presentation_currency(gl_entries, currency_info, filters=None):
 	"""
 	Take a list of GL Entries and change the 'debit' and 'credit' values to currencies
 	in `currency_info`.
@@ -89,7 +89,6 @@ def convert_to_presentation_currency(gl_entries, currency_info):
 	converted_gl_list = []
 	presentation_currency = currency_info["presentation_currency"]
 	company_currency = currency_info["company_currency"]
-
 	account_currencies = list(set(entry["account_currency"] for entry in gl_entries))
 
 	for entry in gl_entries:
@@ -104,6 +103,10 @@ def convert_to_presentation_currency(gl_entries, currency_info):
 			entry["credit"] = credit_in_account_currency
 		else:
 			date = currency_info["report_date"]
+			post_date_cur_conv = filters.get("post_date_cur_conv")
+			if post_date_cur_conv == "Yes":
+				date = entry.get("posting_date")
+
 			converted_debit_value = convert(debit, presentation_currency, company_currency, date)
 			converted_credit_value = convert(credit, presentation_currency, company_currency, date)
 
