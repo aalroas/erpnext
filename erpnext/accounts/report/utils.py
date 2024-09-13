@@ -103,9 +103,10 @@ def convert_to_presentation_currency(gl_entries, currency_info, filters=None):
 			entry["credit"] = credit_in_account_currency
 		else:
 			date = currency_info["report_date"]
-			post_date_cur_conv = filters.get("post_date_cur_conv")
-			if post_date_cur_conv == "Yes":
-				date = entry.get("posting_date")
+			if filters:
+				post_date_cur_conv = filters.get("post_date_cur_conv")
+				if post_date_cur_conv == "Yes":
+					date = entry.get("posting_date")
 
 			converted_debit_value = convert(debit, presentation_currency, company_currency, date)
 			converted_credit_value = convert(credit, presentation_currency, company_currency, date)
