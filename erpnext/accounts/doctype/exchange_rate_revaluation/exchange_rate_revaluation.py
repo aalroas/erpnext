@@ -58,7 +58,7 @@ class ExchangeRateRevaluation(Document):
 				frappe.throw(_("Please enter Exchange Rate for {0}").format(cer.get('from_currency')))
 
 	def on_cancel(self):
-		self.ignore_linked_doctypes = "GL Entry"
+		self.ignore_linked_doctypes = ["GL Entry", "Payment Ledger Entry"]
 
 	@frappe.whitelist()
 	def currency_exchange_rates(self):
