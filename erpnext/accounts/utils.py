@@ -823,6 +823,8 @@ def get_currency_precision(currency=None):
 	custom_precision = None
 	if currency:
 		custom_precision = frappe.db.sql("""select custom_precision from `tabCurrency` where name=%s""", currency, as_dict=1)
+		if custom_precision:
+			custom_precision = custom_precision[0].get('custom_precision')
 	currency_precision = cint(frappe.db.get_default("currency_precision")) or 4
 
 	if custom_precision:
