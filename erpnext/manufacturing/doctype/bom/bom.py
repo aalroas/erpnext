@@ -253,7 +253,11 @@ class BOM(WebsiteGenerator):
 				order_by="sequence_id, idx",
 			):
 				child = self.append("operations", row)
-				child.hour_rate = flt(row.hour_rate / self.conversion_rate, child.precision("hour_rate"))
+				conv_rate = flt(self.conversion_rate)
+				if flt(self.conversion_rate) == 0:
+					conv_rate = 1
+					self.conversion_rate = 1
+				child.hour_rate = flt(row.hour_rate / conv_rate, child.precision("hour_rate"))					
 
 	def set_bom_material_details(self):
 		for item in self.get("items"):
