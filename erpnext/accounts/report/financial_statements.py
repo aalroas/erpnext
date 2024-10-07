@@ -570,7 +570,7 @@ def apply_additional_conditions(doctype, query, from_date, ignore_closing_entrie
 
 			query = query.where(gl_entry.project.isin(filters.project))
 
-		if  not filters.get("include_closing_entries"):
+		if  not filters.get("include_closing_entries") and doctype == "GL Entry":
 			closing_entries = get_closing_entries_names(filters.company)
 			if len(closing_entries) > 0:
 				query = query.where(gl_entry.voucher_no.notin(closing_entries))
