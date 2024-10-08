@@ -174,11 +174,11 @@ erpnext.accounts.PaymentReconciliationController = class PaymentReconciliationCo
 			method: 'get_unreconciled_entries',
 			callback: () => {
 				if (!(this.frm.doc.payments.length || this.frm.doc.invoices.length)) {
-					frappe.throw({message: __("No Unreconciled Invoices and Payments found for this party and account")});
+					frappe.msgprint({message: __("No Unreconciled Invoices and Payments found for this party and account")});
 				} else if (!(this.frm.doc.invoices.length)) {
-					frappe.throw({message: __("No Outstanding Invoices found for this party")});
+					frappe.msgprint({message: __("No Outstanding Invoices found for this party")});
 				} else if (!(this.frm.doc.payments.length)) {
-					frappe.throw({message: __("No Unreconciled Payments found for this party")});
+					frappe.msgprint({message: __("No Unreconciled Payments found for this party")});
 				}
 				this.frm.refresh();
 			}
