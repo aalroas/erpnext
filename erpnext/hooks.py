@@ -396,6 +396,9 @@ auto_cancel_exempted_doctypes = [
 
 scheduler_events = {
 	"cron": {
+		"0 07 * * *": [
+			"erpnext.manufacturing.doctype.bom_update_tool.bom_update_tool.auto_update_latest_price_in_all_boms",
+		],
 		"0/15 * * * *": [
 			"erpnext.manufacturing.doctype.bom_update_log.bom_update_log.resume_bom_cost_update_jobs",
 			"erpnext.accounts.doctype.process_payment_reconciliation.process_payment_reconciliation.trigger_reconciliation_for_queued_docs",
@@ -454,7 +457,6 @@ scheduler_events = {
 	],
 	"daily_long": [
 		"erpnext.setup.doctype.email_digest.email_digest.send",
-		"erpnext.manufacturing.doctype.bom_update_tool.bom_update_tool.auto_update_latest_price_in_all_boms",
 		"erpnext.loan_management.doctype.process_loan_security_shortfall.process_loan_security_shortfall.create_process_loan_security_shortfall",
 		"erpnext.loan_management.doctype.process_loan_interest_accrual.process_loan_interest_accrual.process_loan_interest_accrual_for_term_loans",
 		"erpnext.crm.utils.open_leads_opportunities_based_on_todays_event",

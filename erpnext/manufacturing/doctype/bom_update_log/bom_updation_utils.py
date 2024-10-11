@@ -115,9 +115,20 @@ def get_bom_unit_cost(bom_name: str) -> float:
 
 
 def update_cost_in_boms(bom_list: List[str]) -> None:
+	from ekin_erp.ekin_erp.overrides.custom_erpnext_utils import get_exchange_rate
+	from frappe.utils import nowdate
 	"Updates cost in given BOMs. Returns current and total updated BOMs."
-
+	today_exchange_rate = get_exchange_rate("USD", "TRY", nowdate())
 	for index, bom in enumerate(bom_list):
+		bom_doc = frappe.get_doc("BOM", bom, for_update=True)
+		bom_doc.db_set({
+			"rm_cost_as_per": "Price List",
+			"buying_price_list": "USD - Standard Buying",
+			"price_list_currency": "USD",
+			"currency": "USD",
+			"plc_conversion_rate": today_exchange_rate,
+			"conversion_rate": today_exchange_rate,
+		}, update_modified=False, commit=True)
 		bom_doc = frappe.get_doc("BOM", bom, for_update=True)
 		bom_doc.calculate_cost(save_updates=True, update_hour_rate=True)
 		bom_doc.db_update()
