@@ -660,7 +660,7 @@ class StockEntry(StockController):
 
 	def set_actual_qty(self):
 		from erpnext.stock.stock_ledger import is_negative_stock_allowed
-
+		from ekin_erp.ekin_erp.overrides.custom_erpnext_utils import get_exchange_rate
 		for d in self.get("items"):
 			allow_negative_stock = is_negative_stock_allowed(item_code=d.item_code)
 			previous_sle = get_previous_sle(
@@ -671,6 +671,15 @@ class StockEntry(StockController):
 					"posting_time": self.posting_time,
 				}
 			)
+			# get exchange rate
+			custom_exchange_rate_date = previous_sle.get("posting_date") or self.posting_date
+			custom_exchange_rate = get_exchange_rate("USD", "TRY", custom_exchange_rate_date)
+			now_exchange_rate = get_exchange_rate("USD", "TRY", self.posting_date)
+
+			d.set("custom_exchange_rate_date", custom_exchange_rate_date)
+			d.set("custom_exchange_rate", custom_exchange_rate)
+			self.set("custom_exchange_rate", now_exchange_rate)
+
 
 			# get actual stock at source warehouse
 			d.actual_qty = previous_sle.get("qty_after_transaction") or 0
@@ -733,8 +742,8 @@ class StockEntry(StockController):
 		items = []
 		# Set basic rate for incoming items
 		for d in self.get("items"):
-			if d.s_warehouse or d.set_basic_rate_manually:
-				continue
+			# if d.s_warehouse or d.set_basic_rate_manually:
+			# 	continue
 
 			if d.allow_zero_valuation_rate:
 				d.basic_rate = 0.0
@@ -764,6 +773,10 @@ class StockEntry(StockController):
 			# do not round off basic rate to avoid precision loss
 			d.basic_rate = flt(d.basic_rate)
 			d.basic_amount = flt(flt(d.transfer_qty) * flt(d.basic_rate), d.precision("basic_amount"))
+
+			# set custom basic rate and amount
+			d.custom_basic_rate_usd = flt(d.basic_rate) / flt(d.custom_exchange_rate)
+			d.custom_basic_amount_usd = flt(flt(d.transfer_qty) * flt(d.custom_basic_rate_usd), d.precision("basic_amount"))
 
 		if items:
 			message = ""
@@ -840,11 +853,15 @@ class StockEntry(StockController):
 			self.additional_costs = []
 
 		self.total_additional_costs = sum(flt(t.base_amount) for t in self.get("additional_costs"))
+		total_additional_costs_usd = self.total_additional_costs / flt(self.custom_exchange_rate)
+		incoming_items_cost_usd = 0
 
 		if self.purpose in ("Repack", "Manufacture"):
 			incoming_items_cost = sum(flt(t.basic_amount) for t in self.get("items") if t.is_finished_item)
+			incoming_items_cost_usd = sum(flt(t.custom_basic_amount_usd) for t in self.get("items") if t.is_finished_item)
 		else:
 			incoming_items_cost = sum(flt(t.basic_amount) for t in self.get("items") if t.t_warehouse)
+			incoming_items_cost_usd = sum(flt(t.custom_basic_amount_usd) for t in self.get("items") if t.t_warehouse)
 
 		if not incoming_items_cost:
 			return
@@ -856,29 +873,37 @@ class StockEntry(StockController):
 			elif not d.t_warehouse:
 				d.additional_cost = 0
 				continue
+
 			d.additional_cost = (flt(d.basic_amount) / incoming_items_cost) * self.total_additional_costs
+			d.custom_additional_cost_usd =  (flt(d.custom_basic_amount_usd) / incoming_items_cost_usd)   * total_additional_costs_usd
 
 	def update_valuation_rate(self):
 		for d in self.get("items"):
 			if d.transfer_qty:
 				d.amount = flt(flt(d.basic_amount) + flt(d.additional_cost), d.precision("amount"))
+				d.custom_amount_usd = flt(flt(d.custom_basic_amount_usd) + flt(d.custom_additional_cost_usd), d.precision("custom_amount_usd"))
 				# Do not round off valuation rate to avoid precision loss
 				d.valuation_rate = flt(d.basic_rate) + (flt(d.additional_cost) / flt(d.transfer_qty))
+				d.custom_valuation_rate_usd = flt(d.custom_basic_rate_usd) + (flt(d.custom_additional_cost_usd) / flt(d.transfer_qty))
 
 	def set_total_incoming_outgoing_value(self):
 		self.total_incoming_value = self.total_outgoing_value = 0.0
 		for d in self.get("items"):
 			if d.t_warehouse:
 				self.total_incoming_value += flt(d.amount)
+				self.custom_total_incoming_value_usd += flt(d.custom_amount_usd)
 			if d.s_warehouse:
 				self.total_outgoing_value += flt(d.amount)
+				self.custom_total_outgoing_value_usd += flt(d.custom_amount_usd)
 
 		self.value_difference = self.total_incoming_value - self.total_outgoing_value
+		self.custom_value_difference_usd = self.custom_total_incoming_value_usd - self.custom_total_outgoing_value_usd
 
 	def set_total_amount(self):
 		self.total_amount = None
 		if self.purpose not in ["Manufacture", "Repack"]:
 			self.total_amount = sum([flt(item.amount) for item in self.get("items")])
+			self.custom_total_amount_usd = sum([flt(item.custom_amount_usd) for item in self.get("items")])
 
 	def set_stock_entry_type(self):
 		if self.purpose:
