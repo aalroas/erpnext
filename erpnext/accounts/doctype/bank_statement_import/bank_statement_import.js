@@ -273,39 +273,39 @@ frappe.ui.form.on("Bank Statement Import", {
 		frm.trigger("import_file");
 	},
 
-	import_file(frm) {
-		frm.toggle_display("section_import_preview", frm.has_import_file());
-		if (!frm.has_import_file()) {
-			frm.get_field("import_preview").$wrapper.empty();
-			return;
-		} else {
-			frm.trigger("update_primary_action");
-		}
+	// import_file(frm) {
+	// 	frm.toggle_display("section_import_preview", frm.has_import_file());
+	// 	if (!frm.has_import_file()) {
+	// 		frm.get_field("import_preview").$wrapper.empty();
+	// 		return;
+	// 	} else {
+	// 		frm.trigger("update_primary_action");
+	// 	}
 
-		// load import preview
-		frm.get_field("import_preview").$wrapper.empty();
-		$('<span class="text-muted">')
-			.html(__("Loading import file..."))
-			.appendTo(frm.get_field("import_preview").$wrapper);
+	// 	// load import preview
+	// 	frm.get_field("import_preview").$wrapper.empty();
+	// 	$('<span class="text-muted">')
+	// 		.html(__("Loading import file..."))
+	// 		.appendTo(frm.get_field("import_preview").$wrapper);
 
-		frm.call({
-			method: "get_preview_from_template",
-			args: {
-				data_import: frm.doc.name,
-				import_file: frm.doc.import_file,
-				google_sheets_url: frm.doc.google_sheets_url,
-			},
-			error_handlers: {
-				TimestampMismatchError() {
-					// ignore this error
-				},
-			},
-		}).then((r) => {
-			let preview_data = r.message;
-			frm.events.show_import_preview(frm, preview_data);
-			frm.events.show_import_warnings(frm, preview_data);
-		});
-	},
+	// 	frm.call({
+	// 		method: "get_preview_from_template",
+	// 		args: {
+	// 			data_import: frm.doc.name,
+	// 			import_file: frm.doc.import_file,
+	// 			google_sheets_url: frm.doc.google_sheets_url,
+	// 		},
+	// 		error_handlers: {
+	// 			TimestampMismatchError() {
+	// 				// ignore this error
+	// 			},
+	// 		},
+	// 	}).then((r) => {
+	// 		let preview_data = r.message;
+	// 		frm.events.show_import_preview(frm, preview_data);
+	// 		frm.events.show_import_warnings(frm, preview_data);
+	// 	});
+	// },
 	// method: 'frappe.core.doctype.data_import.data_import.get_preview_from_template',
 
 	show_import_preview(frm, preview_data) {
