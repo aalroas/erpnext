@@ -225,26 +225,26 @@ frappe.ui.form.on("Bank Statement Import", {
 		});
 	},
 
-	download_template() {
-		let method =
-			"/api/method/frappe.core.doctype.data_import.data_import.download_template";
+	// download_template() {
+	// 	let method =
+	// 		"/api/method/frappe.core.doctype.data_import.data_import.download_template";
 
-		open_url_post(method, {
-			doctype: "Bank Transaction",
-			export_records: "5_records",
-			export_fields: {
-				"Bank Transaction": [
-					"date",
-					"deposit",
-					"withdrawal",
-					"description",
-					"reference_number",
-					"bank_account",
-					"currency"
-				],
-			},
-		});
-	},
+	// 	open_url_post(method, {
+	// 		doctype: "Bank Transaction",
+	// 		export_records: "5_records",
+	// 		export_fields: {
+	// 			"Bank Transaction": [
+	// 				"date",
+	// 				"deposit",
+	// 				"withdrawal",
+	// 				"description",
+	// 				"reference_number",
+	// 				"bank_account",
+	// 				"currency"
+	// 			],
+	// 		},
+	// 	});
+	// },
 
 	reference_doctype(frm) {
 		frm.trigger("toggle_submit_after_import");
